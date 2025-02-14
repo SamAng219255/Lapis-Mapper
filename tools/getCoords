@@ -1,0 +1,8 @@
+rm coordIndex.txt
+TIMEFORMAT='It took %R seconds.'
+time {
+for coords in $(ls -1 ../region | grep -o -E "[-]?\d+\.-?\d+");
+do
+	echo $coords | tr . " " >> coordIndex.txt
+done
+}
