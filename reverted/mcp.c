@@ -11,43 +11,39 @@
 #include "extract_region_surface.h"
 #include "render_region.h"
 
-typedef struct {
-	int rx;
-	int rz;
-	char* regionsPath;
-	void* transfer;
-	ulong* blockPltt;
-	ulong* blockPInd;
-	ulong* biomePltt;
-	ulong* biomePInd;
-	paletteData colors;
-	char* savePath;
-} region;
-#define newRegion(Rx, Rz, RegionsPath, Transfer, BlockPltt, BlockPInd, BiomePltt, BiomePInd, Colors, SavePath) ((region){.rx=(Rx),.rz=(Rz),.regionsPath=(RegionsPath),.transfer=(Transfer),.blockPltt=(BlockPltt),.blockPInd=(BlockPInd),.biomePltt=(BiomePltt),.biomePInd=(BiomePInd),.colors=(Colors),.savePath=(SavePath)})
+int processRegion(int rx, int rz, char* regionsPath, ulong* blockPltt, ulong* blockPInd, ulong* biomePltt, ulong* biomePInd, paletteData colors, char* savePath) {
+	FILE *tfp;
+	tfp=tmpfile();
 
-void processRegion(region regionData) {
-	//printf("Starting %i\n", regionData.bit);
+	int ret;
 
-	if(extract_region_surface(
-		regionData.rx, 
-		regionData.rz, 
-		regionData.regionsPath, 
-		regionData.transfer, 
-		regionData.blockPltt, 
-		regionData.blockPInd, 
-		regionData.biomePltt, 
-		regionData.biomePInd
-	)==0) {
-		render_region(
-			regionData.rx, 
-			regionData.rz, 
-			regionData.transfer, 
-			regionData.colors, 
-			regionData.savePath
-		);
+	if((ret=extract_region_surface(
+		rx, 
+		rz, 
+		regionsPath, 
+		tfp, 
+		blockPltt, 
+		blockPInd, 
+		biomePltt, 
+		biomePInd
+	))) {
+		fclose(tfp);
+		return ret;
+	}
+	fseek(tfp,0,SEEK_SET);
+	if((ret=render_region(
+		rx, 
+		rz, 
+		tfp, 
+		colors, 
+		savePath
+	))) {
+		fclose(tfp);
+		return ret;
 	}
 
-	//printf("Finishing %i\n", regionData.bit);
+	fclose(tfp);
+	return 0;
 }
 
 int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'img' 0 0
@@ -81,31 +77,12 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 	}
 	fclose(pfp);
 
-	void* transfer;
-	ulong* blockPltt;
-	ulong* blockData;
-	ulong* biomePltt;
-	ulong* biomeData;
+	ulong* blockPltt = (ulong*)malloc(MAX_BLOCK_PALETTE);// Maximum size useable by the block palette
+	ulong* blockData = (ulong*)malloc(MAX_BLOCK_DATA);// Maximum size useable by the block palette indices
+	ulong* biomePltt = (ulong*)malloc(MAX_BIOME_PALETTE);// Maximum size useable by the biome palette
+	ulong* biomeData = (ulong*)malloc(MAX_BIOME_DATA);// Maximum size useable by the biome palette indices
 
-	// Initialize memory
-	transfer = (void*)malloc(TRANSFER_SIZE);// Size used by the data sent from the extractor to the renderer
-	blockPltt = (ulong*)malloc(MAX_BLOCK_PALETTE);// Maximum size useable by the block palette
-	blockData = (ulong*)malloc(MAX_BLOCK_DATA);// Maximum size useable by the block palette indices
-	biomePltt = (ulong*)malloc(MAX_BIOME_PALETTE);// Maximum size useable by the biome palette
-	biomeData = (ulong*)malloc(MAX_BIOME_DATA);// Maximum size useable by the biome palette indices
-	if(blockPltt==NULL || blockData==NULL || biomePltt==NULL || biomeData==NULL) {
-		printf("Failed to initialize memory.");
-		free(colors.blocks);
-		free(colors.rgb);
-		free(blockPltt);
-		free(blockData);
-		free(biomePltt);
-		free(biomeData);
-		free(pow2);
-		return 0;
-	}
-
-	//Add parsing of renderPath and run extract_region_surface() for each entry.
+	
 	if(argc==5) {
 		FILE *rfp=fopen(argv[4],"rb");
 		if(rfp==NULL) {
@@ -145,11 +122,10 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 						haveZ=haveX=FALSE;
 						prog.value=ftell(rfp);
 						
-						//printf("Processing region at (%i, %i)\n", rx, rz);
+						processRegion(rx, rz, argv[1], blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
+						printf("Processing region at (%i, %i)\n", rx, rz);
 						printf("\033[A\33[2K\033[A\33[2KProcessing region at (%i, %i)\n", rx, rz);
 						printProgBar(&prog);
-						region r = newRegion(rx, rz, argv[1], transfer, blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
-						processRegion(r);
 						rx=rz=0;
 					}
 					break;
@@ -278,7 +254,6 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 					break;
 			}
 		}
-		
 		completeProgBar(&prog);
 	}
 	else {
@@ -286,11 +261,9 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 			int rx=intFromStr(argv[i]);
 			int rz=intFromStr(argv[i+1]);
 
-			region r = newRegion(rx, rz, argv[1], transfer, blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
-			processRegion(r);
+			processRegion(rx, rz, argv[1], blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
 		}
 	}
-	nbt_free_all();
 
 	free(colors.blocks);
 	free(colors.rgb);

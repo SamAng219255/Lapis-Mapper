@@ -23,6 +23,9 @@ typedef struct {
 
 #define newPaletteData(Blocks, RGB, Sz) ((paletteData){.blocks=(Blocks),.rgb=(RGB),.sz=(Sz)})
 
+int rx;
+int rz;
+
 int saveImage(png_bytep buffer, int width, int height, FILE* fp) {
 	//Allocating and initialzing the png_struct and png_info variables
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -170,9 +173,6 @@ rgba tintGrass(rgba color, ulong biome) {
 		case BIOME_cherry_grove:
 			return multiColor(color,newRGBStr(B6DB61));
 			break;
-		case BIOME_pale_garden:
-			return multiColor(color,newRGBStr(778272));
-			break;
 		default:
 			return multiColor(color,newRGBStr(8EB971));
 			break;
@@ -272,9 +272,6 @@ rgba tintLeaves(rgba color, ulong biome) {
 		case BIOME_cherry_grove:
 			return multiColor(color,newRGBStr(B6DB61));
 			break;
-		case BIOME_pale_garden:
-			return multiColor(color,newRGBStr(878D76));
-			break;
 		default:
 			return multiColor(color,newRGBStr(71A74D));
 			break;
@@ -311,9 +308,6 @@ rgba tintWater(rgba color, ulong biome) {
 			break;
 		case BIOME_cherry_grove:
 			return multiColor(color,newRGBStr(5DB7EF));
-			break;
-		case BIOME_pale_garden:
-			return multiColor(color,newRGBStr(76889D));
 			break;
 		default:
 			return multiColor(color,newRGBStr(3F76E4));
@@ -387,8 +381,8 @@ rgba getColor(ulong block, NBT_Short height, NBT_Short northHeight, NBT_Short we
 	return lastColor;
 }
 
-int render_region(int rx, int rz, void* map, paletteData colors, char* partialSavePath) {
-	//progbar prog=newProgBar(512*512,32,"Assigning colors.",FALSE);
+int render_region(int rx, int rz, FILE* map, paletteData colors, char* partialSavePath) {
+	progbar prog=newProgBar(512*512,32,"Assigning colors.",FALSE);
 
 	char curPathChar;
 	int savePathLen=0;
@@ -418,10 +412,8 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 	NBT_Short chunkHeightXLayer[16];
 	NBT_Short chunkHeightZ;
 
-	//printf("Rendering region at (%i, %i)\n", rx, rz);
+	printf("Rendering region at (%i, %i)\n", rx, rz);
 	//startProgBar(&prog);
-	ulong lastUnknownBiomeHash=BIOME_plains;
-	void* mapInd=map;
 	for(int cz=0; cz<32; cz++) {
 		long int chunkRowInd=cz*16;
 		for(int cx=0; cx<32; cx++) {
@@ -430,12 +422,12 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 				long int rowInd=(chunkRowInd+z)*512;
 				for(int x=0; x<16; x++) {
 					size_t ind=(rowInd+chunkColumnInd+x)*4;
-					ulong block = *(ulong*)mapInd;
-					mapInd+=sizeof(ulong);
-					NBT_Short height = *(NBT_Short*)mapInd;
-					mapInd+=sizeof(NBT_Short);
-					ulong biomeId = *(ulong*)mapInd;
-					mapInd+=sizeof(ulong);
+					ulong block;
+					NBT_Short height;
+					ulong biomeId;
+					fread(&block,sizeof(ulong),1,map);
+					fread(&height,sizeof(NBT_Short),1,map);
+					fread(&biomeId,sizeof(ulong),1,map);
 					NBT_Short northHeight=(z>0 ? chunkHeightXLayer[x] : (cz>0 ? regionHeightXLayer[chunkColumnInd+x] : height));
 					NBT_Short westHeight=(x>0 ? chunkHeightZ : (cx>0 ? regionHeightZLayer[chunkRowInd+z] : height));
 					rgba color=newRGBA(0,0,0,0);
@@ -446,79 +438,6 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 					if(x==15) regionHeightZLayer[chunkRowInd+z]=height;
 					else chunkHeightZ=height;
 					//incProgBar(&prog);
-					switch(biomeId) {
-						case BIOME_ocean:
-						case BIOME_deep_ocean:
-						case BIOME_frozen_ocean:
-						case BIOME_deep_frozen_ocean:
-						case BIOME_cold_ocean:
-						case BIOME_deep_cold_ocean:
-						case BIOME_lukewarm_ocean:
-						case BIOME_deep_lukewarm_ocean:
-						case BIOME_warm_ocean:
-						case BIOME_river:
-						case BIOME_frozen_river:
-						case BIOME_beach:
-						case BIOME_stony_shore:
-						case BIOME_snowy_beach:
-						case BIOME_forest:
-						case BIOME_flower_forest:
-						case BIOME_birch_forest:
-						case BIOME_old_growth_birch_forest:
-						case BIOME_dark_forest:
-						case BIOME_pale_garden:
-						case BIOME_jungle:
-						case BIOME_sparse_jungle:
-						case BIOME_bamboo_jungle:
-						case BIOME_taiga:
-						case BIOME_snowy_taiga:
-						case BIOME_old_growth_pine_taiga:
-						case BIOME_old_growth_spruce_taiga:
-						case BIOME_mushroom_fields:
-						case BIOME_swamp:
-						case BIOME_mangrove_swamp:
-						case BIOME_savanna:
-						case BIOME_savanna_plateau:
-						case BIOME_windswept_savanna:
-						case BIOME_plains:
-						case BIOME_sunflower_plains:
-						case BIOME_desert:
-						case BIOME_snowy_plains:
-						case BIOME_ice_spikes:
-						case BIOME_windswept_hills:
-						case BIOME_windswept_forest:
-						case BIOME_windswept_gravelly_hills:
-						case BIOME_badlands:
-						case BIOME_wooded_badlands:
-						case BIOME_eroded_badlands:
-						case BIOME_jagged_peaks:
-						case BIOME_frozen_peaks:
-						case BIOME_stony_peaks:
-						case BIOME_meadow:
-						case BIOME_grove:
-						case BIOME_snowy_slopes:
-						case BIOME_cherry_grove:
-						case BIOME_dripstone_caves:
-						case BIOME_lush_caves:
-						case BIOME_deep_dark:
-						case BIOME_nether_wastes:
-						case BIOME_soul_sand_valley:
-						case BIOME_crimson_forest:
-						case BIOME_warped_forest:
-						case BIOME_basalt_deltas:
-						case BIOME_the_end:
-						case BIOME_small_end_islands:
-						case BIOME_end_midlands:
-						case BIOME_end_highlands:
-						case BIOME_end_barrens:
-						case BIOME_the_void:
-							break;
-						default:
-							if(biomeId != lastUnknownBiomeHash) {
-								fprintf(stderr,"[Rendering r(%i, %i), c(%i, %i)] Unknown biome hash %lu at block %i, %i.\n", rx, rz, cx, cz, biomeId, x, z);
-								lastUnknownBiomeHash = biomeId;
-							}
-					}
 				}
 			}
 		}

@@ -1,0 +1,5 @@
+rm error_log.txt
+TIMEFORMAT='It took %R seconds.'
+time {
+	./lapis '../region' '../tools/block_colors' 'img' '../tools/coordIndex.txt' 2>> error_log.txt
+}

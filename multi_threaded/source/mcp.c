@@ -253,9 +253,9 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 						
 						regionInfo r = newRegionInfo(rx, rz, argv[1], blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
 						newRegionThread(r);
-						printf("Processing region at (%i, %i)\n", rx, rz);
-						//printf("\033[A\33[2K\033[A\33[2KProcessing region at (%i, %i)\n", rx, rz);
-						//printProgBar(&prog);
+						//printf("Processing region at (%i, %i)\n", rx, rz);
+						printf("\033[A\33[2K\033[A\33[2KProcessing region at (%i, %i)\n", rx, rz);
+						printProgBar(&prog);
 						rx=rz=0;
 					}
 					break;

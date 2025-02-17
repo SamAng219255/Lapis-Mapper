@@ -6,9 +6,9 @@ import re
 
 printHash=True
 
-basePath=r"/Users/samanguiano/Library/Application Support/minecraft/versions/24w36a/24w36a/assets/minecraft/textures/block/"
-basePathI=r"/Users/samanguiano/Library/Application Support/minecraft/versions/24w36a/24w36a/assets/minecraft/textures/item/"
-basePathE=r"/Users/samanguiano/Library/Application Support/minecraft/versions/24w36a/24w36a/assets/minecraft/textures/entity/"
+basePath = sys.argv[2] + "/block/"
+basePathI = sys.argv[2] + "/item/"
+basePathE = sys.argv[2] + "/entity/"
 
 missingBlocks=[]
 
@@ -58,7 +58,7 @@ def main():
 			blockNameUsed=re.sub('_hyphae','',blockNameUsed)+"_stem"
 		if blockNameUsed.endswith('_bed'):
 			blockNameUsed=re.sub('_bed','',blockNameUsed)+"_wool"
-		if blockNameUsed.endswith('_carpet') and not blockNameUsed.startswith('moss'):
+		if blockNameUsed.endswith('_carpet') and not 'moss' in blockNameUsed:
 			blockNameUsed=re.sub('_carpet','',blockNameUsed)+"_wool"
 		if blockNameUsed.endswith('_carpet'):
 			blockNameUsed=re.sub('_carpet','',blockNameUsed)+"_block"
@@ -118,7 +118,7 @@ def main():
 			blockNameUsed+='_still'
 		if blockNameUsed.endswith('oak') or blockNameUsed.endswith('spruce') or blockNameUsed.endswith('birch') or blockNameUsed.endswith('jungle') or blockNameUsed.endswith('acacia') or blockNameUsed.endswith('dark_oak') or blockNameUsed.endswith('cherry') or blockNameUsed.endswith('mangrove') or blockNameUsed.endswith('crimson') or blockNameUsed.endswith('warped'):
 			blockNameUsed+='_planks'
-		if blockNameUsed.endswith('quartz') or blockNameUsed.endswith('purpur') or blockNameUsed.endswith('moss'):
+		if blockNameUsed.endswith('quartz') or blockNameUsed.endswith('purpur') or (blockNameUsed.endswith('moss') and not 'hanging' in blockNameUsed):
 			blockNameUsed+='_block'
 		if blockNameUsed.startswith('smooth_') and not blockNameUsed.startswith('smooth_stone_'):
 			blockNameUsed=blockNameUsed[len('smooth_'):]
@@ -164,6 +164,8 @@ def main():
 			blockNameUsed='torchflower'
 		if 'trial_spawner'==blockNameUsed:
 			blockNameUsed='trial_spawner_top_inactive'
+		if 'test_block'==blockNameUsed:
+			blockNameUsed='test_block_start'
 		filepath=usedPath+blockNameUsed+".png"
 		#print(filepath)
 		if not path.exists(filepath):
@@ -184,13 +186,14 @@ def main():
 				Rtotal/=total
 				Gtotal/=total
 				Btotal/=total
-				if printHash: print('{:016x}{:02x}{:02x}{:02x}'.format(hash(blockName),int(Rtotal),int(Gtotal),int(Btotal)))
+				if printHash: print('{:016x}{:02x}{:02x}{:02x}'.format(hash(blockName),int(Rtotal),int(Gtotal),int(Btotal)), end='')
 				else: print(blockName+': "#{:02x}{:02x}{:02x}"'.format(int(Rtotal),int(Gtotal),int(Btotal)))
 		else:
 			missingBlocks.append(blockName)
 	for block in missingBlocks:
-		if printHash: print('{:016x}{:02x}{:02x}{:02x}'.format(hash(block),int(0),int(0),int(0)))
+		if printHash: print('{:016x}{:02x}{:02x}{:02x}'.format(hash(block),int(0),int(0),int(0)), end='')
 		else: print(block+': "#{:02x}{:02x}{:02x}"'.format(int(0),int(0),int(0)))
+	if printHash: print('')
 
 
 with open(sys.argv[1]) as f:
