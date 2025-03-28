@@ -41,10 +41,6 @@ int is_block_passable(ulong block_hash) {
 }
 
 int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void* transfer, ulong* blockPltt, ulong* blockData, ulong* biomePltt, ulong* biomeData) {
-	int blockIdErr1[3] = { FALSE, FALSE, FALSE };
-	int blockIdErr2[3] = { FALSE, FALSE, FALSE };
-	int biomeIdErr[3] = { FALSE, FALSE, FALSE };
-
 	int error_code;
 
 	//Fetch location of chunk data. Saved in offset.
@@ -229,7 +225,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 							fseek(sctnsFile,payloadSizes[TAG_Byte],SEEK_CUR);
 							readPayload_Int(sctnsFile,&plttLen);
 							if(plttLen==1) homogenous=TRUE;
-							while(pow2[plttBitCount]<plttLen) {
+							while(1<<plttBitCount<plttLen) {
 								plttBitCount++;
 							}
 
@@ -240,7 +236,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 							fseek(sctnsFile,payloadSizes[TAG_Byte],SEEK_CUR);
 							readPayload_Int(sctnsFile,&plttLen);
 							if(plttLen==1) bioHomogenous=TRUE;
-							while(pow2[bioPlttBitCount]<plttLen) {
+							while(1<<bioPlttBitCount<plttLen) {
 								bioPlttBitCount++;
 							}
 							fseek(sctnsFile,-payloadSizes[TAG_Byte]-payloadSizes[TAG_Int],SEEK_CUR);
@@ -330,7 +326,6 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 							blockId.string=(char*)malloc(blockId.length);
 							fread(blockId.string,1,blockId.length,sctnsFile);
 							blockPltt[Yind_block+w]=hash(&blockId.string[10],blockId.length-10);
-							//printf("%.*s = %lu\n",blockId.length-10,&blockId.string[10],blockPltt[Yind_block+w]);
 							free(blockId.string);
 						}
 						else {
@@ -353,7 +348,6 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 				readPayload_Short(sctnsFile, &biomeId.length);
 				biomeId.string=(char*)malloc(biomeId.length);
 				fread(biomeId.string,1,biomeId.length,sctnsFile);
-
 				biomePltt[Yind_biome+w]=hash(&biomeId.string[10],biomeId.length-10);
 				free(biomeId.string);
 			}
@@ -395,7 +389,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 				// Read the long integer from blockData.
 				NBT_Long tarLong = blockData[PART_BLOCK_DATA*sctnY+((256*Y+i)/indicesPerLong)];
 				// Extract the palette index from the long integer.
-				plttInd=(tarLong>>plttBits[sctnY]*((256*Y+i)%indicesPerLong))&(pow2[plttBits[sctnY]]-1);
+				plttInd=(tarLong>>plttBits[sctnY]*((256*Y+i)%indicesPerLong))&((1<<plttBits[sctnY])-1);
 			}
 			// Get block hash from palette.
 			blocks[i]=blockPltt[PART_BLOCK_PALETTE*sctnY+plttInd];
@@ -439,7 +433,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 							plttInd=0;
 						else {
 							NBT_Long tarLong = blockData[PART_BLOCK_DATA*sctnY+((256*Y+i)/indicesPerLong)];
-							plttInd=(tarLong>>plttBits[sctnY]*((256*Y+i)%indicesPerLong))&(pow2[plttBits[sctnY]]-1);
+							plttInd=(tarLong>>plttBits[sctnY]*((256*Y+i)%indicesPerLong))&((1<<plttBits[sctnY])-1);
 						}
 						blocks[i]=blockPltt[PART_BLOCK_PALETTE*sctnY+plttInd];
 						if(!is_block_passable(blocks[i])) {
@@ -490,7 +484,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 				// Read the long integer from the biomeData.
 				NBT_Long tarLong = biomeData[PART_BIOME_DATA*sctnY+((16*biomeY+biomeInd)/indicesPerLong)];
 				// Extract the palette index from the long integer.
-				plttInd=(tarLong>>(bioPlttBits[sctnY]*((16*biomeY+biomeInd)%indicesPerLong)))&(pow2[bioPlttBits[sctnY]]-1);
+				plttInd=(tarLong>>(bioPlttBits[sctnY]*((16*biomeY+biomeInd)%indicesPerLong)))&((1<<bioPlttBits[sctnY])-1);
 			}
 			// Get biome hash from palette.
 			biomes[i]=biomePltt[PART_BIOME_PALETTE*sctnY+plttInd];

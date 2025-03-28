@@ -1,10 +1,17 @@
 #include <assert.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
+#include <stdarg.h>
+#include <limits.h>
+#include <png.h>
+#include <zlib.h>
 
-#include "mymath.c"
+#include "utils.h"
 #include "nbt.h"
-#include "zlib.h"
 #include "zlib_ex.c"
-#include "png.h"
 #include "block_hash.h"
 #include "progbar.c"
 
@@ -61,12 +68,10 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		return 0;
 	}
 	NBT_Quiet=TRUE;
-	initPow2();
 
 	FILE *pfp=fopen(argv[2],"rb");//Palette File Pointer
 	if(pfp==NULL) {
 		perror(argv[2]);
-		free(pow2);
 		return 1;
 	}
 	paletteData colors;
@@ -101,7 +106,6 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		free(blockData);
 		free(biomePltt);
 		free(biomeData);
-		free(pow2);
 		return 0;
 	}
 
@@ -110,7 +114,6 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		FILE *rfp=fopen(argv[4],"rb");
 		if(rfp==NULL) {
 			perror(argv[2]);
-			free(pow2);
 			return 1;
 		}
 		char coordPathChar;
@@ -298,5 +301,4 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 	free(blockData);
 	free(biomePltt);
 	free(biomeData);
-	free(pow2);
 }

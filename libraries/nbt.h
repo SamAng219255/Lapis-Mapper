@@ -1120,7 +1120,7 @@ NBTag parseNBTFile(FILE* fp,int isVerbose) {
 						floatingPoint=8;
 					case(TAG_Double):
 						for(int i=0; i<8; i++) {
-							int bit=((uint8_t)cur)&pow2[7-i] ? 1 : 0;
+							int bit=((uint8_t)cur)&(1<<(7-i)) ? 1 : 0;
 							int place=8*byteIndex+i;
 							if(place==0) {
 								sign=bit;
@@ -1130,7 +1130,7 @@ NBTag parseNBTFile(FILE* fp,int isVerbose) {
 								exponent+=bit;
 							}
 							else {
-								fraction+=((double)bit)/((double)pow2[place-floatingPoint]);
+								fraction+=((double)bit)/((double)(1<<(place-floatingPoint)));
 							}
 						}
 						break;
@@ -1151,10 +1151,10 @@ NBTag parseNBTFile(FILE* fp,int isVerbose) {
 							*getPayload(Long,curTag)=tmp;
 							break;
 						case(TAG_Float):
-							*getPayload(Float,curTag)=(sign ? -1 : 1)*(exponent<127 ? 1/((float)pow2[127-exponent]) : (float)pow2[exponent-127])*fraction;
+							*getPayload(Float,curTag)=(sign ? -1 : 1)*(exponent<127 ? 1/((float)(1<<(127-exponent))) : (float)(1<<(exponent-127)))*fraction;
 							break;
 						case(TAG_Double):
-							*getPayload(Double,curTag)=(sign ? -1 : 1)*(exponent<1023 ? 1/((double)pow2[1023-exponent]) : (double)pow2[exponent-1023])*fraction;
+							*getPayload(Double,curTag)=(sign ? -1 : 1)*(exponent<1023 ? 1/((double)(1<<(1023-exponent))) : (double)(1<<(exponent-1023)))*fraction;
 							break;
 					}
 					tmp=0;

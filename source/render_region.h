@@ -165,6 +165,11 @@ rgba tintGrass(rgba color, ulong biome) {
 		case BIOME_savanna_plateau:
 		case BIOME_savanna:
 		case BIOME_windswept_savanna:
+		case BIOME_nether_wastes:
+		case BIOME_soul_sand_valley:
+		case BIOME_crimson_forest:
+		case BIOME_warped_forest:
+		case BIOME_basalt_deltas:
 			return multiColor(color,newRGBStr(BFB755));
 			break;
 		case BIOME_cherry_grove:
@@ -267,6 +272,11 @@ rgba tintLeaves(rgba color, ulong biome) {
 		case BIOME_savanna_plateau:
 		case BIOME_savanna:
 		case BIOME_windswept_savanna:
+		case BIOME_nether_wastes:
+		case BIOME_soul_sand_valley:
+		case BIOME_crimson_forest:
+		case BIOME_warped_forest:
+		case BIOME_basalt_deltas:
 			return multiColor(color,newRGBStr(AEA42A));
 			break;
 		case BIOME_cherry_grove:
@@ -277,6 +287,107 @@ rgba tintLeaves(rgba color, ulong biome) {
 			break;
 		default:
 			return multiColor(color,newRGBStr(71A74D));
+			break;
+	}
+}
+rgba tintDeadLeaves(rgba color, ulong biome) {
+	switch(biome) {
+		case BIOME_mushroom_fields:
+			return multiColor(color,newRGBStr(A36246));
+			break;
+		case BIOME_birch_forest:
+		case BIOME_old_growth_birch_forest:
+			return multiColor(color,newRGBStr(A37246));
+			break;
+		case BIOME_stony_shore:
+		case BIOME_windswept_forest:
+		case BIOME_windswept_gravelly_hills:
+		case BIOME_windswept_hills:
+			return multiColor(color,newRGBStr(977752));
+			break;
+		case BIOME_swamp:
+		case BIOME_mangrove_swamp:
+		case BIOME_dark_forest:
+			return multiColor(color,newRGBStr(7B5334));
+			break;
+		case BIOME_badlands:
+		case BIOME_eroded_badlands:
+		case BIOME_wooded_badlands:
+			return multiColor(color,newRGBStr(9E814D));
+			break;
+		case BIOME_sparse_jungle:
+		case BIOME_bamboo_jungle:
+		case BIOME_jungle:
+			return multiColor(color,newRGBStr(A36346));
+			break;
+		case BIOME_flower_forest:
+		case BIOME_forest:
+			return multiColor(color,newRGBStr(A36D46));
+			break;
+		case BIOME_frozen_ocean:
+		case BIOME_frozen_peaks:
+		case BIOME_frozen_river:
+		case BIOME_grove:
+		case BIOME_ice_spikes:
+		case BIOME_jagged_peaks:
+		case BIOME_snowy_plains:
+		case BIOME_snowy_slopes:
+		case BIOME_snowy_taiga:
+			return multiColor(color,newRGBStr(8F7A5A));
+			break;
+		case BIOME_snowy_beach:
+			return multiColor(color,newRGBStr(917958));
+			break;
+		case BIOME_old_growth_pine_taiga:
+			return multiColor(color,newRGBStr(9C754D));
+			break;
+		case BIOME_old_growth_spruce_taiga:
+		case BIOME_taiga:
+			return multiColor(color,newRGBStr(9A764F));
+			break;
+		case BIOME_cold_ocean:
+		case BIOME_deep_cold_ocean:
+		case BIOME_deep_lukewarm_ocean:
+		case BIOME_deep_ocean:
+		case BIOME_lukewarm_ocean:
+		case BIOME_ocean:
+		case BIOME_river:
+		case BIOME_the_void:
+		case BIOME_warm_ocean:
+		case BIOME_deep_frozen_ocean:
+		case BIOME_lush_caves:
+			return multiColor(color,newRGBStr(A17448));
+			break;
+		case BIOME_beach:
+		case BIOME_deep_dark:
+		case BIOME_plains:
+		case BIOME_sunflower_plains:
+		case BIOME_dripstone_caves:
+			return multiColor(color,newRGBStr(A37546));
+			break;
+		case BIOME_stony_peaks:
+			return multiColor(color,newRGBStr(927957));
+			break;
+		case BIOME_desert:
+		case BIOME_savanna_plateau:
+		case BIOME_savanna:
+		case BIOME_windswept_savanna:
+		case BIOME_nether_wastes:
+		case BIOME_soul_sand_valley:
+		case BIOME_crimson_forest:
+		case BIOME_warped_forest:
+		case BIOME_basalt_deltas:
+			return multiColor(color,newRGBStr(A38046));
+			break;
+		case BIOME_cherry_grove:
+		case BIOME_meadow:
+			return multiColor(color,newRGBStr(A17148));
+			break;
+		case BIOME_pale_garden:
+			return multiColor(color,newRGBStr(A0A69C));
+			break;
+		default:
+			return multiColor(color,newRGBStr(A37546));
 			break;
 	}
 }
@@ -360,6 +471,9 @@ rgba tint(rgba color, ulong block, NBT_Short height, NBT_Short northHeight, NBT_
 		case BLOCK_VINE:
 			return tintLeaves(modifiedColor,biome);
 			break;
+		case BLOCK_LEAF_LITTER:
+			return tintDeadLeaves(modifiedColor,biome);
+			break;
 		default:
 			return modifiedColor;
 			break;
@@ -402,14 +516,12 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 	sfp = fopen(savePath,"wb");
 	if(sfp==NULL) {
 		perror(savePath);
-		free(pow2);
 		return 1;
 	}
 	png_bytep buffer=(png_bytep)malloc(512*512*4);//pixel color data BUFFER
 	if(buffer==NULL) {
 		perror("Failed to allocate buffer.");
 		fclose(sfp);
-		free(pow2);
 		return 1;
 	}
 

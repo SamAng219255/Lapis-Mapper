@@ -52,6 +52,11 @@ pthread_cond_t  regionSetCond  = PTHREAD_COND_INITIALIZER;
 time_t threadStarts[NTHREADS];
 time_t threadUpdate[NTHREADS];
 
+int threadTaskXs[NTHREADS];
+int threadTaskZs[NTHREADS];
+int lastX;
+int lastZ;
+
 void* processRegion(void* r) {
 	//printf("(%i, %i) %i\n\n",(*setRegion).rx,(*setRegion).rz,(*setRegion).bit);
 	pthread_mutex_lock(&regionSetMutex);
@@ -101,7 +106,7 @@ void* processRegion(void* r) {
 	pthread_exit(NULL);
 }
 
-int newRegionThread(regionInfo rInfo) {
+int newRegionThread(regionInfo rInfo, int hasPrint, progbar prog) {
 	for(int s=0; s<60; s++) {
 		pthread_mutex_lock(&threadsInUseMutex);
 		//printf("Mutex Main Lock\n");
@@ -130,17 +135,28 @@ int newRegionThread(regionInfo rInfo) {
 					//printf("Mutex Main Unlock\n");
 					pthread_mutex_unlock(&threadsInUseMutex);
 					threadStarts[i]=threadUpdate[i]=time(NULL);
+					threadTaskXs[i]=rInfo.rx;
+					threadTaskZs[i]=rInfo.rz;
 					return 0;
 				}
 			}
 			else {
+				int foundNoResponse = FALSE;
 				if(time(NULL)-threadUpdate[i]>60) {
 					threadUpdate[i]=time(NULL);
+					if(hasPrint && !foundNoResponse) {
+						foundNoResponse = TRUE;
+						printf("\033[A\33[2K\033[A\33[2K");
+					}
 					pthread_mutex_lock(&checkpointMutex);
 					pthread_mutex_lock(&datapointMutex);
-					printf("Thread %i has not responded in %li seconds! Last checkpoint: %i, data: %i\n", i, time(NULL)-threadStarts[i], checkpoints[i], datapoints[i]);
+					printf("Thread %i has not responded in %li seconds! Task: Region (%i, %i)\n", i, time(NULL)-threadStarts[i], threadTaskXs[i], threadTaskZs[i]);
 					pthread_mutex_unlock(&datapointMutex);
 					pthread_mutex_unlock(&checkpointMutex);
+				}
+				if(hasPrint && foundNoResponse) {
+					printf("Processing region at (%i, %i)\n", lastX, lastZ);
+					printProgBar(&prog);
 				}
 			}
 		}
@@ -252,10 +268,12 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 						prog.value=ftell(rfp);
 						
 						regionInfo r = newRegionInfo(rx, rz, argv[1], blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
-						newRegionThread(r);
+						newRegionThread(r, TRUE, prog);
 						//printf("Processing region at (%i, %i)\n", rx, rz);
 						printf("\033[A\33[2K\033[A\33[2KProcessing region at (%i, %i)\n", rx, rz);
 						printProgBar(&prog);
+						lastX=rx;
+						lastZ=rz;
 						rx=rz=0;
 					}
 					break;
@@ -402,7 +420,7 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 			int rz=intFromStr(argv[i+1]);
 
 			regionInfo r = newRegionInfo(rx, rz, argv[1], blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
-			newRegionThread(r);
+			newRegionThread(r, FALSE, newProgBar(0,0,"",FALSE));
 		}
 	}
 	nbt_free_all();
