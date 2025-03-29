@@ -1,0 +1,1 @@
+gcc -o lapis source/mcp.c -Isource/ -Ilibraries/ -lz -lpng16 -lm -Wno-varargs

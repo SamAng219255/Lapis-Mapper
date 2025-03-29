@@ -508,6 +508,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 		*(NBT_Short*)(offset+sizeof(ulong)) = htMap[i];
 		*(ulong*)(offset+sizeof(ulong)+sizeof(NBT_Short)) = biomes[i];
 	}
+	free(biomes);
 	free(blocks);
 	free(htMap);
 

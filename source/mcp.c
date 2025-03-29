@@ -54,6 +54,8 @@ void processRegion(region regionData) {
 		);
 	}
 
+	nbt_free_all();
+
 	//printf("Finishing %i\n", regionData.bit);
 }
 
