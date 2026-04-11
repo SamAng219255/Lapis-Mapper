@@ -148,6 +148,16 @@ def main():
 				blockNameUsed='ender'
 			if blockNameUsed=='trapped_chest':
 				blockNameUsed='trapped'
+			if blockNameUsed=='copper_chest':
+				blockNameUsed='copper'
+			if '_copper' in blockNameUsed:
+				blockNameUsed='copper_'+blockNameUsed[:-len('_copper_chest')]
+		if 'copper_golem' in blockNameUsed:
+			usedPath=basePathE+'copper_golem/'
+			if blockNameUsed=='copper_golem_statue':
+				blockNameUsed='copper_golem'
+			else:
+				blockNameUsed='copper_golem_'+blockNameUsed[:-len('_copper_golem_statue')]
 		if 'cocoa'==blockNameUsed:
 			blockNameUsed+='_stage2'
 		if 'grindstone'==blockNameUsed:
@@ -166,6 +176,8 @@ def main():
 			blockNameUsed='trial_spawner_top_inactive'
 		if 'test_block'==blockNameUsed:
 			blockNameUsed='test_block_start'
+		if 'dried_ghast'==blockNameUsed:
+			blockNameUsed+='_hydration_0'
 		filepath=usedPath+blockNameUsed+".png"
 		#print(filepath)
 		if not path.exists(filepath):

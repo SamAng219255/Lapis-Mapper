@@ -495,7 +495,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 		}
 		else {
 			// If the section Y index is out of range, set the biome to void.
-			biomes[i]=BIOME_the_void;
+			biomes[i]=BIOME_THE_VOID;
 		}
 	}
 

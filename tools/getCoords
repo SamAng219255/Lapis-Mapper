@@ -1,3 +1,4 @@
+touch coordIndex.txt
 rm coordIndex.txt
 TIMEFORMAT='It took %R seconds.'
 time {

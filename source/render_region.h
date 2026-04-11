@@ -78,104 +78,104 @@ rgba multiColor(rgba color1, rgba color2) {
 
 rgba tintGrass(rgba color, ulong biome) {
 	switch(biome) {
-		case BIOME_mushroom_fields:
+		case BIOME_MUSHROOM_FIELDS:
 			return multiColor(color,newRGBStr(55C93F));
 			break;
-		case BIOME_sparse_jungle:
+		case BIOME_SPARSE_JUNGLE:
 			return multiColor(color,newRGBStr(64C73F));
 			break;
-		case BIOME_mangrove_swamp:
-		case BIOME_swamp:
+		case BIOME_MANGROVE_SWAMP:
+		case BIOME_SWAMP:
 			return multiColor(color,newRGBStr(6A7039));
 			break;
-		case BIOME_birch_forest:
-		case BIOME_old_growth_birch_forest:
+		case BIOME_BIRCH_FOREST:
+		case BIOME_OLD_GROWTH_BIRCH_FOREST:
 			return multiColor(color,newRGBStr(88BB67));
 			break;
-		case BIOME_stony_shore:
-		case BIOME_windswept_forest:
-		case BIOME_windswept_gravelly_hills:
-		case BIOME_windswept_hills:
+		case BIOME_STONY_SHORE:
+		case BIOME_WINDSWEPT_FOREST:
+		case BIOME_WINDSWEPT_GRAVELLY_HILLS:
+		case BIOME_WINDSWEPT_HILLS:
 			return multiColor(color,newRGBStr(8AB689));
 			break;
-		case BIOME_badlands:
-		case BIOME_eroded_badlands:
-		case BIOME_wooded_badlands:
+		case BIOME_BADLANDS:
+		case BIOME_ERODED_BADLANDS:
+		case BIOME_WOODED_BADLANDS:
 			return multiColor(color,newRGBStr(90814D));
 			break;
-		case BIOME_bamboo_jungle:
-		case BIOME_jungle:
+		case BIOME_BAMBOO_JUNGLE:
+		case BIOME_JUNGLE:
 			return multiColor(color,newRGBStr(59C93C));
 			break;
-		case BIOME_dark_forest:
+		case BIOME_DARK_FOREST:
 			return multiColor(color,newRGBStr(507A32));
 			break;
-		case BIOME_flower_forest:
-		case BIOME_forest:
+		case BIOME_FLOWER_FOREST:
+		case BIOME_FOREST:
 			return multiColor(color,newRGBStr(79C05A));
 			break;
-		case BIOME_frozen_ocean:
-		case BIOME_frozen_peaks:
-		case BIOME_frozen_river:
-		case BIOME_grove:
-		case BIOME_ice_spikes:
-		case BIOME_jagged_peaks:
-		case BIOME_snowy_plains:
-		case BIOME_snowy_slopes:
-		case BIOME_snowy_taiga:
+		case BIOME_FROZEN_OCEAN:
+		case BIOME_FROZEN_PEAKS:
+		case BIOME_FROZEN_RIVER:
+		case BIOME_GROVE:
+		case BIOME_ICE_SPIKES:
+		case BIOME_JAGGED_PEAKS:
+		case BIOME_SNOWY_PLAINS:
+		case BIOME_SNOWY_SLOPES:
+		case BIOME_SNOWY_TAIGA:
 			return multiColor(color,newRGBStr(80B497));
 			break;
-		case BIOME_meadow:
+		case BIOME_MEADOW:
 			return multiColor(color,newRGBStr(83BB6D));
 			break;
-		case BIOME_snowy_beach:
+		case BIOME_SNOWY_BEACH:
 			return multiColor(color,newRGBStr(83B593));
 			break;
-		case BIOME_old_growth_pine_taiga:
+		case BIOME_OLD_GROWTH_PINE_TAIGA:
 			return multiColor(color,newRGBStr(86B87F));
 			break;
-		case BIOME_old_growth_spruce_taiga:
-		case BIOME_taiga:
+		case BIOME_OLD_GROWTH_SPRUCE_TAIGA:
+		case BIOME_TAIGA:
 			return multiColor(color,newRGBStr(86B783));
 			break;
-		case BIOME_cold_ocean:
-		case BIOME_deep_cold_ocean:
-		case BIOME_deep_lukewarm_ocean:
-		case BIOME_deep_ocean:
-		case BIOME_lukewarm_ocean:
-		case BIOME_ocean:
-		case BIOME_river:
-		case BIOME_the_void:
-		case BIOME_warm_ocean:
-		case BIOME_deep_frozen_ocean:
-		case BIOME_lush_caves:
+		case BIOME_COLD_OCEAN:
+		case BIOME_DEEP_COLD_OCEAN:
+		case BIOME_DEEP_LUKEWARM_OCEAN:
+		case BIOME_DEEP_OCEAN:
+		case BIOME_LUKEWARM_OCEAN:
+		case BIOME_OCEAN:
+		case BIOME_RIVER:
+		case BIOME_THE_VOID:
+		case BIOME_WARM_OCEAN:
+		case BIOME_DEEP_FROZEN_OCEAN:
+		case BIOME_LUSH_CAVES:
 			return multiColor(color,newRGBStr(8EB971));
 			break;
-		case BIOME_beach:
-		case BIOME_deep_dark:
-		case BIOME_plains:
-		case BIOME_sunflower_plains:
-		case BIOME_dripstone_caves:
+		case BIOME_BEACH:
+		case BIOME_DEEP_DARK:
+		case BIOME_PLAINS:
+		case BIOME_SUNFLOWER_PLAINS:
+		case BIOME_DRIPSTONE_CAVES:
 			return multiColor(color,newRGBStr(91BD59));
 			break;
-		case BIOME_stony_peaks:
+		case BIOME_STONY_PEAKS:
 			return multiColor(color,newRGBStr(9ABE4B));
 			break;
-		case BIOME_desert:
-		case BIOME_savanna_plateau:
-		case BIOME_savanna:
-		case BIOME_windswept_savanna:
-		case BIOME_nether_wastes:
-		case BIOME_soul_sand_valley:
-		case BIOME_crimson_forest:
-		case BIOME_warped_forest:
-		case BIOME_basalt_deltas:
+		case BIOME_DESERT:
+		case BIOME_SAVANNA_PLATEAU:
+		case BIOME_SAVANNA:
+		case BIOME_WINDSWEPT_SAVANNA:
+		case BIOME_NETHER_WASTES:
+		case BIOME_SOUL_SAND_VALLEY:
+		case BIOME_CRIMSON_FOREST:
+		case BIOME_WARPED_FOREST:
+		case BIOME_BASALT_DELTAS:
 			return multiColor(color,newRGBStr(BFB755));
 			break;
-		case BIOME_cherry_grove:
+		case BIOME_CHERRY_GROVE:
 			return multiColor(color,newRGBStr(B6DB61));
 			break;
-		case BIOME_pale_garden:
+		case BIOME_PALE_GARDEN:
 			return multiColor(color,newRGBStr(778272));
 			break;
 		default:
@@ -185,104 +185,104 @@ rgba tintGrass(rgba color, ulong biome) {
 }
 rgba tintLeaves(rgba color, ulong biome) {
 	switch(biome) {
-		case BIOME_mushroom_fields:
+		case BIOME_MUSHROOM_FIELDS:
 			return multiColor(color,newRGBStr(2BBB0F));
 			break;
-		case BIOME_sparse_jungle:
+		case BIOME_SPARSE_JUNGLE:
 			return multiColor(color,newRGBStr(3EB80F));
 			break;
-		case BIOME_mangrove_swamp:
+		case BIOME_MANGROVE_SWAMP:
 			return multiColor(color,newRGBStr(6A7039));
 			break;
-		case BIOME_birch_forest:
-		case BIOME_old_growth_birch_forest:
+		case BIOME_BIRCH_FOREST:
+		case BIOME_OLD_GROWTH_BIRCH_FOREST:
 			return multiColor(color,newRGBStr(6BA941));
 			break;
-		case BIOME_stony_shore:
-		case BIOME_windswept_forest:
-		case BIOME_windswept_gravelly_hills:
-		case BIOME_windswept_hills:
+		case BIOME_STONY_SHORE:
+		case BIOME_WINDSWEPT_FOREST:
+		case BIOME_WINDSWEPT_GRAVELLY_HILLS:
+		case BIOME_WINDSWEPT_HILLS:
 			return multiColor(color,newRGBStr(6DA36B));
 			break;
-		case BIOME_swamp:
+		case BIOME_SWAMP:
 			return multiColor(color,newRGBStr(8DB127));
 			break;
-		case BIOME_badlands:
-		case BIOME_eroded_badlands:
-		case BIOME_wooded_badlands:
+		case BIOME_BADLANDS:
+		case BIOME_ERODED_BADLANDS:
+		case BIOME_WOODED_BADLANDS:
 			return multiColor(color,newRGBStr(9E814D));
 			break;
-		case BIOME_bamboo_jungle:
-		case BIOME_jungle:
+		case BIOME_BAMBOO_JUNGLE:
+		case BIOME_JUNGLE:
 			return multiColor(color,newRGBStr(30BB0B));
 			break;
-		case BIOME_dark_forest:
-		case BIOME_flower_forest:
-		case BIOME_forest:
+		case BIOME_DARK_FOREST:
+		case BIOME_FLOWER_FOREST:
+		case BIOME_FOREST:
 			return multiColor(color,newRGBStr(59AE30));
 			break;
-		case BIOME_frozen_ocean:
-		case BIOME_frozen_peaks:
-		case BIOME_frozen_river:
-		case BIOME_grove:
-		case BIOME_ice_spikes:
-		case BIOME_jagged_peaks:
-		case BIOME_snowy_plains:
-		case BIOME_snowy_slopes:
-		case BIOME_snowy_taiga:
+		case BIOME_FROZEN_OCEAN:
+		case BIOME_FROZEN_PEAKS:
+		case BIOME_FROZEN_RIVER:
+		case BIOME_GROVE:
+		case BIOME_ICE_SPIKES:
+		case BIOME_JAGGED_PEAKS:
+		case BIOME_SNOWY_PLAINS:
+		case BIOME_SNOWY_SLOPES:
+		case BIOME_SNOWY_TAIGA:
 			return multiColor(color,newRGBStr(60A17B));
 			break;
-		case BIOME_meadow:
+		case BIOME_MEADOW:
 			return multiColor(color,newRGBStr(63A948));
 			break;
-		case BIOME_snowy_beach:
+		case BIOME_SNOWY_BEACH:
 			return multiColor(color,newRGBStr(64A278));
 			break;
-		case BIOME_old_growth_pine_taiga:
+		case BIOME_OLD_GROWTH_PINE_TAIGA:
 			return multiColor(color,newRGBStr(68A55F));
 			break;
-		case BIOME_old_growth_spruce_taiga:
-		case BIOME_taiga:
+		case BIOME_OLD_GROWTH_SPRUCE_TAIGA:
+		case BIOME_TAIGA:
 			return multiColor(color,newRGBStr(68A464));
 			break;
-		case BIOME_cold_ocean:
-		case BIOME_deep_cold_ocean:
-		case BIOME_deep_lukewarm_ocean:
-		case BIOME_deep_ocean:
-		case BIOME_lukewarm_ocean:
-		case BIOME_ocean:
-		case BIOME_river:
-		case BIOME_the_void:
-		case BIOME_warm_ocean:
-		case BIOME_deep_frozen_ocean:
-		case BIOME_lush_caves:
+		case BIOME_COLD_OCEAN:
+		case BIOME_DEEP_COLD_OCEAN:
+		case BIOME_DEEP_LUKEWARM_OCEAN:
+		case BIOME_DEEP_OCEAN:
+		case BIOME_LUKEWARM_OCEAN:
+		case BIOME_OCEAN:
+		case BIOME_RIVER:
+		case BIOME_THE_VOID:
+		case BIOME_WARM_OCEAN:
+		case BIOME_DEEP_FROZEN_OCEAN:
+		case BIOME_LUSH_CAVES:
 			return multiColor(color,newRGBStr(71A74D));
 			break;
-		case BIOME_beach:
-		case BIOME_deep_dark:
-		case BIOME_plains:
-		case BIOME_sunflower_plains:
-		case BIOME_dripstone_caves:
+		case BIOME_BEACH:
+		case BIOME_DEEP_DARK:
+		case BIOME_PLAINS:
+		case BIOME_SUNFLOWER_PLAINS:
+		case BIOME_DRIPSTONE_CAVES:
 			return multiColor(color,newRGBStr(77AB2F));
 			break;
-		case BIOME_stony_peaks:
+		case BIOME_STONY_PEAKS:
 			return multiColor(color,newRGBStr(82AC1E));
 			break;
-		case BIOME_desert:
-		case BIOME_savanna_plateau:
-		case BIOME_savanna:
-		case BIOME_windswept_savanna:
-		case BIOME_nether_wastes:
-		case BIOME_soul_sand_valley:
-		case BIOME_crimson_forest:
-		case BIOME_warped_forest:
-		case BIOME_basalt_deltas:
+		case BIOME_DESERT:
+		case BIOME_SAVANNA_PLATEAU:
+		case BIOME_SAVANNA:
+		case BIOME_WINDSWEPT_SAVANNA:
+		case BIOME_NETHER_WASTES:
+		case BIOME_SOUL_SAND_VALLEY:
+		case BIOME_CRIMSON_FOREST:
+		case BIOME_WARPED_FOREST:
+		case BIOME_BASALT_DELTAS:
 			return multiColor(color,newRGBStr(AEA42A));
 			break;
-		case BIOME_cherry_grove:
+		case BIOME_CHERRY_GROVE:
 			return multiColor(color,newRGBStr(B6DB61));
 			break;
-		case BIOME_pale_garden:
+		case BIOME_PALE_GARDEN:
 			return multiColor(color,newRGBStr(878D76));
 			break;
 		default:
@@ -292,98 +292,98 @@ rgba tintLeaves(rgba color, ulong biome) {
 }
 rgba tintDeadLeaves(rgba color, ulong biome) {
 	switch(biome) {
-		case BIOME_mushroom_fields:
+		case BIOME_MUSHROOM_FIELDS:
 			return multiColor(color,newRGBStr(A36246));
 			break;
-		case BIOME_birch_forest:
-		case BIOME_old_growth_birch_forest:
+		case BIOME_BIRCH_FOREST:
+		case BIOME_OLD_GROWTH_BIRCH_FOREST:
 			return multiColor(color,newRGBStr(A37246));
 			break;
-		case BIOME_stony_shore:
-		case BIOME_windswept_forest:
-		case BIOME_windswept_gravelly_hills:
-		case BIOME_windswept_hills:
+		case BIOME_STONY_SHORE:
+		case BIOME_WINDSWEPT_FOREST:
+		case BIOME_WINDSWEPT_GRAVELLY_HILLS:
+		case BIOME_WINDSWEPT_HILLS:
 			return multiColor(color,newRGBStr(977752));
 			break;
-		case BIOME_swamp:
-		case BIOME_mangrove_swamp:
-		case BIOME_dark_forest:
+		case BIOME_SWAMP:
+		case BIOME_MANGROVE_SWAMP:
+		case BIOME_DARK_FOREST:
 			return multiColor(color,newRGBStr(7B5334));
 			break;
-		case BIOME_badlands:
-		case BIOME_eroded_badlands:
-		case BIOME_wooded_badlands:
+		case BIOME_BADLANDS:
+		case BIOME_ERODED_BADLANDS:
+		case BIOME_WOODED_BADLANDS:
 			return multiColor(color,newRGBStr(9E814D));
 			break;
-		case BIOME_sparse_jungle:
-		case BIOME_bamboo_jungle:
-		case BIOME_jungle:
+		case BIOME_SPARSE_JUNGLE:
+		case BIOME_BAMBOO_JUNGLE:
+		case BIOME_JUNGLE:
 			return multiColor(color,newRGBStr(A36346));
 			break;
-		case BIOME_flower_forest:
-		case BIOME_forest:
+		case BIOME_FLOWER_FOREST:
+		case BIOME_FOREST:
 			return multiColor(color,newRGBStr(A36D46));
 			break;
-		case BIOME_frozen_ocean:
-		case BIOME_frozen_peaks:
-		case BIOME_frozen_river:
-		case BIOME_grove:
-		case BIOME_ice_spikes:
-		case BIOME_jagged_peaks:
-		case BIOME_snowy_plains:
-		case BIOME_snowy_slopes:
-		case BIOME_snowy_taiga:
+		case BIOME_FROZEN_OCEAN:
+		case BIOME_FROZEN_PEAKS:
+		case BIOME_FROZEN_RIVER:
+		case BIOME_GROVE:
+		case BIOME_ICE_SPIKES:
+		case BIOME_JAGGED_PEAKS:
+		case BIOME_SNOWY_PLAINS:
+		case BIOME_SNOWY_SLOPES:
+		case BIOME_SNOWY_TAIGA:
 			return multiColor(color,newRGBStr(8F7A5A));
 			break;
-		case BIOME_snowy_beach:
+		case BIOME_SNOWY_BEACH:
 			return multiColor(color,newRGBStr(917958));
 			break;
-		case BIOME_old_growth_pine_taiga:
+		case BIOME_OLD_GROWTH_PINE_TAIGA:
 			return multiColor(color,newRGBStr(9C754D));
 			break;
-		case BIOME_old_growth_spruce_taiga:
-		case BIOME_taiga:
+		case BIOME_OLD_GROWTH_SPRUCE_TAIGA:
+		case BIOME_TAIGA:
 			return multiColor(color,newRGBStr(9A764F));
 			break;
-		case BIOME_cold_ocean:
-		case BIOME_deep_cold_ocean:
-		case BIOME_deep_lukewarm_ocean:
-		case BIOME_deep_ocean:
-		case BIOME_lukewarm_ocean:
-		case BIOME_ocean:
-		case BIOME_river:
-		case BIOME_the_void:
-		case BIOME_warm_ocean:
-		case BIOME_deep_frozen_ocean:
-		case BIOME_lush_caves:
+		case BIOME_COLD_OCEAN:
+		case BIOME_DEEP_COLD_OCEAN:
+		case BIOME_DEEP_LUKEWARM_OCEAN:
+		case BIOME_DEEP_OCEAN:
+		case BIOME_LUKEWARM_OCEAN:
+		case BIOME_OCEAN:
+		case BIOME_RIVER:
+		case BIOME_THE_VOID:
+		case BIOME_WARM_OCEAN:
+		case BIOME_DEEP_FROZEN_OCEAN:
+		case BIOME_LUSH_CAVES:
 			return multiColor(color,newRGBStr(A17448));
 			break;
-		case BIOME_beach:
-		case BIOME_deep_dark:
-		case BIOME_plains:
-		case BIOME_sunflower_plains:
-		case BIOME_dripstone_caves:
+		case BIOME_BEACH:
+		case BIOME_DEEP_DARK:
+		case BIOME_PLAINS:
+		case BIOME_SUNFLOWER_PLAINS:
+		case BIOME_DRIPSTONE_CAVES:
 			return multiColor(color,newRGBStr(A37546));
 			break;
-		case BIOME_stony_peaks:
+		case BIOME_STONY_PEAKS:
 			return multiColor(color,newRGBStr(927957));
 			break;
-		case BIOME_desert:
-		case BIOME_savanna_plateau:
-		case BIOME_savanna:
-		case BIOME_windswept_savanna:
-		case BIOME_nether_wastes:
-		case BIOME_soul_sand_valley:
-		case BIOME_crimson_forest:
-		case BIOME_warped_forest:
-		case BIOME_basalt_deltas:
+		case BIOME_DESERT:
+		case BIOME_SAVANNA_PLATEAU:
+		case BIOME_SAVANNA:
+		case BIOME_WINDSWEPT_SAVANNA:
+		case BIOME_NETHER_WASTES:
+		case BIOME_SOUL_SAND_VALLEY:
+		case BIOME_CRIMSON_FOREST:
+		case BIOME_WARPED_FOREST:
+		case BIOME_BASALT_DELTAS:
 			return multiColor(color,newRGBStr(A38046));
 			break;
-		case BIOME_cherry_grove:
-		case BIOME_meadow:
+		case BIOME_CHERRY_GROVE:
+		case BIOME_MEADOW:
 			return multiColor(color,newRGBStr(A17148));
 			break;
-		case BIOME_pale_garden:
+		case BIOME_PALE_GARDEN:
 			return multiColor(color,newRGBStr(A0A69C));
 			break;
 		default:
@@ -393,37 +393,37 @@ rgba tintDeadLeaves(rgba color, ulong biome) {
 }
 rgba tintWater(rgba color, ulong biome) {
 	switch(biome) {
-		case BIOME_cold_ocean:
-		case BIOME_deep_cold_ocean:
-		case BIOME_snowy_beach:
-		case BIOME_snowy_taiga:
+		case BIOME_COLD_OCEAN:
+		case BIOME_DEEP_COLD_OCEAN:
+		case BIOME_SNOWY_BEACH:
+		case BIOME_SNOWY_TAIGA:
 			return multiColor(color,newRGBStr(3D57D6));
 			break;
-		case BIOME_frozen_ocean:
-		case BIOME_deep_frozen_ocean:
-		case BIOME_frozen_river:
+		case BIOME_FROZEN_OCEAN:
+		case BIOME_DEEP_FROZEN_OCEAN:
+		case BIOME_FROZEN_RIVER:
 			return multiColor(color,newRGBStr(3938C9));
 			break;
-		case BIOME_lukewarm_ocean:
-		case BIOME_deep_lukewarm_ocean:
+		case BIOME_LUKEWARM_OCEAN:
+		case BIOME_DEEP_LUKEWARM_OCEAN:
 			return multiColor(color,newRGBStr(45ADF2));
 			break;
-		case BIOME_swamp:
+		case BIOME_SWAMP:
 			return multiColor(color,newRGBStr(4C6559));
 			break;
-		case BIOME_mangrove_swamp:
+		case BIOME_MANGROVE_SWAMP:
 			return multiColor(color,newRGBStr(3A7A6A));
 			break;
-		case BIOME_warm_ocean:
+		case BIOME_WARM_OCEAN:
 			return multiColor(color,newRGBStr(43D5EE));
 			break;
-		case BIOME_meadow:
+		case BIOME_MEADOW:
 			return multiColor(color,newRGBStr(0E4ECF));
 			break;
-		case BIOME_cherry_grove:
+		case BIOME_CHERRY_GROVE:
 			return multiColor(color,newRGBStr(5DB7EF));
 			break;
-		case BIOME_pale_garden:
+		case BIOME_PALE_GARDEN:
 			return multiColor(color,newRGBStr(76889D));
 			break;
 		default:
@@ -532,7 +532,7 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 
 	//printf("Rendering region at (%i, %i)\n", rx, rz);
 	//startProgBar(&prog);
-	ulong lastUnknownBiomeHash=BIOME_plains;
+	ulong lastUnknownBiomeHash=BIOME_PLAINS;
 	void* mapInd=map;
 	for(int cz=0; cz<32; cz++) {
 		long int chunkRowInd=cz*16;
@@ -559,71 +559,71 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 					else chunkHeightZ=height;
 					//incProgBar(&prog);
 					switch(biomeId) {
-						case BIOME_ocean:
-						case BIOME_deep_ocean:
-						case BIOME_frozen_ocean:
-						case BIOME_deep_frozen_ocean:
-						case BIOME_cold_ocean:
-						case BIOME_deep_cold_ocean:
-						case BIOME_lukewarm_ocean:
-						case BIOME_deep_lukewarm_ocean:
-						case BIOME_warm_ocean:
-						case BIOME_river:
-						case BIOME_frozen_river:
-						case BIOME_beach:
-						case BIOME_stony_shore:
-						case BIOME_snowy_beach:
-						case BIOME_forest:
-						case BIOME_flower_forest:
-						case BIOME_birch_forest:
-						case BIOME_old_growth_birch_forest:
-						case BIOME_dark_forest:
-						case BIOME_pale_garden:
-						case BIOME_jungle:
-						case BIOME_sparse_jungle:
-						case BIOME_bamboo_jungle:
-						case BIOME_taiga:
-						case BIOME_snowy_taiga:
-						case BIOME_old_growth_pine_taiga:
-						case BIOME_old_growth_spruce_taiga:
-						case BIOME_mushroom_fields:
-						case BIOME_swamp:
-						case BIOME_mangrove_swamp:
-						case BIOME_savanna:
-						case BIOME_savanna_plateau:
-						case BIOME_windswept_savanna:
-						case BIOME_plains:
-						case BIOME_sunflower_plains:
-						case BIOME_desert:
-						case BIOME_snowy_plains:
-						case BIOME_ice_spikes:
-						case BIOME_windswept_hills:
-						case BIOME_windswept_forest:
-						case BIOME_windswept_gravelly_hills:
-						case BIOME_badlands:
-						case BIOME_wooded_badlands:
-						case BIOME_eroded_badlands:
-						case BIOME_jagged_peaks:
-						case BIOME_frozen_peaks:
-						case BIOME_stony_peaks:
-						case BIOME_meadow:
-						case BIOME_grove:
-						case BIOME_snowy_slopes:
-						case BIOME_cherry_grove:
-						case BIOME_dripstone_caves:
-						case BIOME_lush_caves:
-						case BIOME_deep_dark:
-						case BIOME_nether_wastes:
-						case BIOME_soul_sand_valley:
-						case BIOME_crimson_forest:
-						case BIOME_warped_forest:
-						case BIOME_basalt_deltas:
-						case BIOME_the_end:
-						case BIOME_small_end_islands:
-						case BIOME_end_midlands:
-						case BIOME_end_highlands:
-						case BIOME_end_barrens:
-						case BIOME_the_void:
+						case BIOME_OCEAN:
+						case BIOME_DEEP_OCEAN:
+						case BIOME_FROZEN_OCEAN:
+						case BIOME_DEEP_FROZEN_OCEAN:
+						case BIOME_COLD_OCEAN:
+						case BIOME_DEEP_COLD_OCEAN:
+						case BIOME_LUKEWARM_OCEAN:
+						case BIOME_DEEP_LUKEWARM_OCEAN:
+						case BIOME_WARM_OCEAN:
+						case BIOME_RIVER:
+						case BIOME_FROZEN_RIVER:
+						case BIOME_BEACH:
+						case BIOME_STONY_SHORE:
+						case BIOME_SNOWY_BEACH:
+						case BIOME_FOREST:
+						case BIOME_FLOWER_FOREST:
+						case BIOME_BIRCH_FOREST:
+						case BIOME_OLD_GROWTH_BIRCH_FOREST:
+						case BIOME_DARK_FOREST:
+						case BIOME_PALE_GARDEN:
+						case BIOME_JUNGLE:
+						case BIOME_SPARSE_JUNGLE:
+						case BIOME_BAMBOO_JUNGLE:
+						case BIOME_TAIGA:
+						case BIOME_SNOWY_TAIGA:
+						case BIOME_OLD_GROWTH_PINE_TAIGA:
+						case BIOME_OLD_GROWTH_SPRUCE_TAIGA:
+						case BIOME_MUSHROOM_FIELDS:
+						case BIOME_SWAMP:
+						case BIOME_MANGROVE_SWAMP:
+						case BIOME_SAVANNA:
+						case BIOME_SAVANNA_PLATEAU:
+						case BIOME_WINDSWEPT_SAVANNA:
+						case BIOME_PLAINS:
+						case BIOME_SUNFLOWER_PLAINS:
+						case BIOME_DESERT:
+						case BIOME_SNOWY_PLAINS:
+						case BIOME_ICE_SPIKES:
+						case BIOME_WINDSWEPT_HILLS:
+						case BIOME_WINDSWEPT_FOREST:
+						case BIOME_WINDSWEPT_GRAVELLY_HILLS:
+						case BIOME_BADLANDS:
+						case BIOME_WOODED_BADLANDS:
+						case BIOME_ERODED_BADLANDS:
+						case BIOME_JAGGED_PEAKS:
+						case BIOME_FROZEN_PEAKS:
+						case BIOME_STONY_PEAKS:
+						case BIOME_MEADOW:
+						case BIOME_GROVE:
+						case BIOME_SNOWY_SLOPES:
+						case BIOME_CHERRY_GROVE:
+						case BIOME_DRIPSTONE_CAVES:
+						case BIOME_LUSH_CAVES:
+						case BIOME_DEEP_DARK:
+						case BIOME_NETHER_WASTES:
+						case BIOME_SOUL_SAND_VALLEY:
+						case BIOME_CRIMSON_FOREST:
+						case BIOME_WARPED_FOREST:
+						case BIOME_BASALT_DELTAS:
+						case BIOME_THE_END:
+						case BIOME_SMALL_END_ISLANDS:
+						case BIOME_END_MIDLANDS:
+						case BIOME_END_HIGHLANDS:
+						case BIOME_END_BARRENS:
+						case BIOME_THE_VOID:
 							break;
 						default:
 							if(biomeId != lastUnknownBiomeHash) {

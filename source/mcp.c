@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <png.h>
 #include <zlib.h>
+#include <sys/ioctl.h>
 
 #include "utils.h"
 #include "nbt.h"
@@ -127,8 +128,18 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		int negZ=FALSE;
 		int go=TRUE;
 		fseek(rfp, 0, SEEK_END);
-		progbar prog=newProgBar(ftell(rfp),175,"Generating maps.",FALSE);
+		struct winsize w;
+		if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
+			perror("ioctl error");
+			return 1;
+		}
+		int barWidth = w.ws_col - 33;
+		if(barWidth > 175) {
+			barWidth = 175;
+		}
+		progbar prog=newProgBar(ftell(rfp),barWidth,"Generating maps.",FALSE);
 		fseek(rfp, 0, SEEK_SET);
+		printf("\n");
 		startProgBar(&prog);
 		while(go) {
 			coordPathChar=getc(rfp);
@@ -287,7 +298,7 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		completeProgBar(&prog);
 	}
 	else {
-		for(int i=4; i<argc; i+=2) { // increments index 'i'; 4 is the first index that holds a region coordinate and they are found in pairs
+		for(int i=4; i<argc; i+=2) { // 4 is the first index that holds a region coordinate and they are found in pairs
 			int rx=intFromStr(argv[i]);
 			int rz=intFromStr(argv[i+1]);
 
