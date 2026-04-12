@@ -23,7 +23,7 @@ def hash(strng):
 def main():
 	for blockName in blockNames:
 		usedPath=basePath
-		blockNameUsed=blockName
+		blockNameUsed=blockName.split(":", 1)[1]
 		if 'bubble_column'==blockNameUsed:
 			blockNameUsed='water'
 		if blockNameUsed.endswith('_stairs'):

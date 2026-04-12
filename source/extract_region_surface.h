@@ -29,15 +29,15 @@
 
 int is_block_passable(ulong block_hash) {
 	return 
-		block_hash==BLOCK_BARRIER || 
-		block_hash==BLOCK_AIR || 
-		block_hash==BLOCK_CAVE_AIR || 
-		block_hash==BLOCK_END_GATEWAY || 
-		block_hash==BLOCK_END_PORTAL || 
-		block_hash==BLOCK_LIGHT || 
-		block_hash==BLOCK_GLASS || 
-		block_hash==BLOCK_GLASS_PANE || 
-		block_hash==BLOCK_STRUCTURE_VOID;
+		block_hash==BLOCK_MINECRAFT_BARRIER || 
+		block_hash==BLOCK_MINECRAFT_AIR || 
+		block_hash==BLOCK_MINECRAFT_CAVE_AIR || 
+		block_hash==BLOCK_MINECRAFT_END_GATEWAY || 
+		block_hash==BLOCK_MINECRAFT_END_PORTAL || 
+		block_hash==BLOCK_MINECRAFT_LIGHT || 
+		block_hash==BLOCK_MINECRAFT_GLASS || 
+		block_hash==BLOCK_MINECRAFT_GLASS_PANE || 
+		block_hash==BLOCK_MINECRAFT_STRUCTURE_VOID;
 }
 
 int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void* transfer, ulong* blockPltt, ulong* blockData, ulong* biomePltt, ulong* biomeData) {
@@ -325,7 +325,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 							readPayload_Short(sctnsFile, &blockId.length);
 							blockId.string=(char*)malloc(blockId.length);
 							fread(blockId.string,1,blockId.length,sctnsFile);
-							blockPltt[Yind_block+w]=hash(&blockId.string[10],blockId.length-10);
+							blockPltt[Yind_block+w]=hash(blockId.string,blockId.length);
 							free(blockId.string);
 						}
 						else {
@@ -348,7 +348,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 				readPayload_Short(sctnsFile, &biomeId.length);
 				biomeId.string=(char*)malloc(biomeId.length);
 				fread(biomeId.string,1,biomeId.length,sctnsFile);
-				biomePltt[Yind_biome+w]=hash(&biomeId.string[10],biomeId.length-10);
+				biomePltt[Yind_biome+w]=hash(biomeId.string,biomeId.length);
 				free(biomeId.string);
 			}
 
@@ -405,7 +405,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 		}
 		else {
 			// If the section Y index is out of range, set the block to air.
-			blocks[i]=BLOCK_AIR;
+			blocks[i]=BLOCK_MINECRAFT_AIR;
 		}
 	}
 
@@ -452,7 +452,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 				}
 			}
 			if(unknownHeight[i]) {
-				blocks[i]=BLOCK_AIR;
+				blocks[i]=BLOCK_MINECRAFT_AIR;
 				htMap[i]=0;
 			}
 		}
@@ -495,7 +495,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 		}
 		else {
 			// If the section Y index is out of range, set the biome to void.
-			biomes[i]=BIOME_THE_VOID;
+			biomes[i]=BIOME_MINECRAFT_THE_VOID;
 		}
 	}
 
@@ -539,7 +539,9 @@ int extract_region_surface(int rx, int rz, char* regionsPath, void* transfer, ul
 		for(int cx=0; cx<32; cx++) {// Changed for testing, switch from 1 to 32
 			int retVal;
 			if((retVal=extract_chunk_surface(rx,rz,cx,cz,rfp,transfer,blockPltt,blockData,biomePltt,biomeData))!=CHUNK_OK) {
-				fprintf(stderr,"Chunk error on r(%i, %i) c(%i, %i): %i\n",rx,rz,cx,cz,retVal);
+				if(retVal != CHUNK_NOT_PRESENT) {
+					fprintf(stderr,"Chunk error on r(%i, %i) c(%i, %i): %i\n",rx,rz,cx,cz,retVal);
+				}
 				void* transferChunk = (transfer + (cz * 32 + cx) * PART_TRANSFER_SIZE);
 				for(int i=0; i<PART_TRANSFER_SIZE; i++) {
 					*(uint8_t*)(transferChunk + i) = 0;
