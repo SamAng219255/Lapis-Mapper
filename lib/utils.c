@@ -1,5 +1,8 @@
-#define TRUE 1
-#define FALSE 0
+#include <stdlib.h>
+#include <stdint.h>
+#include <limits.h>
+
+#include "utils.h"
 
 double clamp(double x,double min,double max) {
 	return max<x ? max : (min>x?min:x);

@@ -1,49 +1,54 @@
-#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
-#include "mymath.c"
+#include "utils.h"
+#include "progbar.h"
 #include "nbt.h"
-#include "zlib.h"
-#include "zlib_ex.c"
-#include "png.h"
-#include "block_hash.h"
-#include "progbar.c"
 
 #include "extract_region_surface.h"
 #include "render_region.h"
 
-int processRegion(int rx, int rz, char* regionsPath, ulong* blockPltt, ulong* blockPInd, ulong* biomePltt, ulong* biomePInd, paletteData colors, char* savePath) {
-	FILE *tfp;
-	tfp=tmpfile();
+typedef struct {
+	int rx;
+	int rz;
+	char* regionsPath;
+	void* transfer;
+	ulong* blockPltt;
+	ulong* blockPInd;
+	ulong* biomePltt;
+	ulong* biomePInd;
+	paletteData colors;
+	char* savePath;
+} region;
+#define newRegion(Rx, Rz, RegionsPath, Transfer, BlockPltt, BlockPInd, BiomePltt, BiomePInd, Colors, SavePath) ((region){.rx=(Rx),.rz=(Rz),.regionsPath=(RegionsPath),.transfer=(Transfer),.blockPltt=(BlockPltt),.blockPInd=(BlockPInd),.biomePltt=(BiomePltt),.biomePInd=(BiomePInd),.colors=(Colors),.savePath=(SavePath)})
 
-	int ret;
+void processRegion(region regionData) {
+	//printf("Starting %i\n", regionData.bit);
 
-	if((ret=extract_region_surface(
-		rx, 
-		rz, 
-		regionsPath, 
-		tfp, 
-		blockPltt, 
-		blockPInd, 
-		biomePltt, 
-		biomePInd
-	))) {
-		fclose(tfp);
-		return ret;
+	if(extract_region_surface(
+		regionData.rx, 
+		regionData.rz, 
+		regionData.regionsPath, 
+		regionData.transfer, 
+		regionData.blockPltt, 
+		regionData.blockPInd, 
+		regionData.biomePltt, 
+		regionData.biomePInd
+	)==0) {
+		render_region(
+			regionData.rx, 
+			regionData.rz, 
+			regionData.transfer, 
+			regionData.colors, 
+			regionData.savePath
+		);
 	}
-	fseek(tfp,0,SEEK_SET);
-	if((ret=render_region(
-		rx, 
-		rz, 
-		tfp, 
-		colors, 
-		savePath
-	))) {
-		fclose(tfp);
-		return ret;
-	}
 
-	fclose(tfp);
-	return 0;
+	//nbt_free_all();
+
+	//printf("Finishing %i\n", regionData.bit);
 }
 
 int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'img' 0 0
@@ -56,13 +61,11 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		printf("\tcoordPath\n\t\tThe path to the file containing a list of coordinate pairs to search on separate lines.\n");
 		return 0;
 	}
-	NBT_Quiet=TRUE;
-	initPow2();
+	//NBT_Quiet=TRUE;
 
 	FILE *pfp=fopen(argv[2],"rb");//Palette File Pointer
 	if(pfp==NULL) {
 		perror(argv[2]);
-		free(pow2);
 		return 1;
 	}
 	paletteData colors;
@@ -70,24 +73,41 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 	colors.sz = ftell(pfp)/(sizeof(ulong)+3);
 	fseek(pfp, 0, SEEK_SET);
 	colors.blocks=(ulong*)malloc(colors.sz*sizeof(ulong));
-	colors.rgb=(NBT_Byte*)malloc(colors.sz*3);
+	colors.rgb=(uint8_t*)malloc(colors.sz*3);
 	for (int i = 0; i < colors.sz; i++) {
 		freadE(&colors.blocks[i],sizeof(ulong),1,pfp);
 		freadE(&colors.rgb[i*3],sizeof(NBT_Byte),3,pfp);
 	}
 	fclose(pfp);
 
-	ulong* blockPltt = (ulong*)malloc(MAX_BLOCK_PALETTE);// Maximum size useable by the block palette
-	ulong* blockData = (ulong*)malloc(MAX_BLOCK_DATA);// Maximum size useable by the block palette indices
-	ulong* biomePltt = (ulong*)malloc(MAX_BIOME_PALETTE);// Maximum size useable by the biome palette
-	ulong* biomeData = (ulong*)malloc(MAX_BIOME_DATA);// Maximum size useable by the biome palette indices
+	void* transfer;
+	ulong* blockPltt;
+	ulong* blockData;
+	ulong* biomePltt;
+	ulong* biomeData;
 
-	
+	// Initialize memory
+	transfer = (void*)malloc(TRANSFER_SIZE);// Size used by the data sent from the extractor to the renderer
+	blockPltt = (ulong*)malloc(MAX_BLOCK_PALETTE);// Maximum size useable by the block palette
+	blockData = (ulong*)malloc(MAX_BLOCK_DATA);// Maximum size useable by the block palette indices
+	biomePltt = (ulong*)malloc(MAX_BIOME_PALETTE);// Maximum size useable by the biome palette
+	biomeData = (ulong*)malloc(MAX_BIOME_DATA);// Maximum size useable by the biome palette indices
+	if(blockPltt==NULL || blockData==NULL || biomePltt==NULL || biomeData==NULL) {
+		printf("Failed to initialize memory.");
+		free(colors.blocks);
+		free(colors.rgb);
+		free(blockPltt);
+		free(blockData);
+		free(biomePltt);
+		free(biomeData);
+		return 0;
+	}
+
+	//Add parsing of renderPath and run extract_region_surface() for each entry.
 	if(argc==5) {
 		FILE *rfp=fopen(argv[4],"rb");
 		if(rfp==NULL) {
 			perror(argv[2]);
-			free(pow2);
 			return 1;
 		}
 		char coordPathChar;
@@ -99,8 +119,18 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		int negZ=FALSE;
 		int go=TRUE;
 		fseek(rfp, 0, SEEK_END);
-		progbar prog=newProgBar(ftell(rfp),175,"Generating maps.",FALSE);
+		struct winsize w;
+		if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
+			perror("ioctl error");
+			return 1;
+		}
+		int barWidth = w.ws_col - 33;
+		if(barWidth > 175) {
+			barWidth = 175;
+		}
+		progbar prog=newProgBar(ftell(rfp),barWidth,"Generating maps.",FALSE);
 		fseek(rfp, 0, SEEK_SET);
+		printf("\n");
 		startProgBar(&prog);
 		while(go) {
 			coordPathChar=getc(rfp);
@@ -122,10 +152,11 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 						haveZ=haveX=FALSE;
 						prog.value=ftell(rfp);
 						
-						processRegion(rx, rz, argv[1], blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
-						printf("Processing region at (%i, %i)\n", rx, rz);
+						//printf("Processing region at (%i, %i)\n", rx, rz);
 						printf("\033[A\33[2K\033[A\33[2KProcessing region at (%i, %i)\n", rx, rz);
 						printProgBar(&prog);
+						region r = newRegion(rx, rz, argv[1], transfer, blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
+						processRegion(r);
 						rx=rz=0;
 					}
 					break;
@@ -254,16 +285,19 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 					break;
 			}
 		}
+		
 		completeProgBar(&prog);
 	}
 	else {
-		for(int i=4; i<argc; i+=2) { // increments index 'i'; 4 is the first index that holds a region coordinate and they are found in pairs
+		for(int i=4; i<argc; i+=2) { // 4 is the first index that holds a region coordinate and they are found in pairs
 			int rx=intFromStr(argv[i]);
 			int rz=intFromStr(argv[i+1]);
 
-			processRegion(rx, rz, argv[1], blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
+			region r = newRegion(rx, rz, argv[1], transfer, blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
+			processRegion(r);
 		}
 	}
+	//nbt_free_all();
 
 	free(colors.blocks);
 	free(colors.rgb);
@@ -271,5 +305,4 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 	free(blockData);
 	free(biomePltt);
 	free(biomeData);
-	free(pow2);
 }

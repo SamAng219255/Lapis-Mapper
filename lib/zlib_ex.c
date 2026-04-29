@@ -1,12 +1,8 @@
-#if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
-#  include <fcntl.h>
-#  include <io.h>
-#  define SET_BINARY_MODE(file) setmode(fileno(file), O_BINARY)
-#else
-#  define SET_BINARY_MODE(file)
-#endif
+#include <zlib.h>
+#include <stdio.h>
+#include <assert.h>
 
-#define CHUNK 16384
+#include "zlib_ex.h"
 
 int inf(FILE *source, FILE *dest) {
     int ret;

@@ -1,12 +1,6 @@
-typedef unsigned long ulong;
+#include "utils.h"
 
-ulong hash(char *str, size_t len) {
-	ulong hash = 5381;
-	for(size_t i=0; i<len; i++) {
-		hash = ((hash << 5) + hash) ^ ((uint8_t*)str)[i]; /* hash * 33 ^ c */
-	}
-	return hash;
-}
+extern ulong hash(char *str, size_t len);
 
 #define BLOCK_MINECRAFT_ACACIA_BUTTON 452837260945843827UL
 #define BLOCK_MINECRAFT_ACACIA_DOOR 17515506161135200435UL

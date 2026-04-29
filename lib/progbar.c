@@ -1,15 +1,6 @@
-typedef struct {
-	size_t max;
-	size_t value;
-	char *title;
-	size_t length;
-	size_t lastUpdated;
-	int bell;
-} progbar;
+#include "progbar.h"
 
-#define newProgBar(Max,Length,Title,Bell) ((progbar){.max=Max,.value=0,.length=Length,.title=Title,.lastUpdated=0,.bell=Bell})
-
-char* barElements[]={" ","▏","▎","▍","▌","▋","▊","▉","█"};
+static char* barElements[]={" ","▏","▎","▍","▌","▋","▊","▉","█"};
 
 void printProgBar(progbar* bar) {
 	size_t percent=(100*bar->value)/bar->max;

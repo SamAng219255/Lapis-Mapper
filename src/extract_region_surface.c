@@ -1,33 +1,13 @@
-#define CHUNK_OK 0
-#define CHUNK_NOT_PRESENT -1
-#define CHUNK_CORRUPTED -2
-#define CHUNK_TOO_OLD -3
+#include <stdlib.h>
+#include <zlib.h>
 
-// Size used by the data sent from the extractor to the renderer
-// 32x32 chunks in a region times 256 blocks in a chunk times (ulong block hash + NBT_Short height + ulong biome hash)
-#define TRANSFER_SIZE 4718592
-// Partition size used by the data sent from the extractor to the renderer (represents one chunk of data)
-// 256 blocks in a chunk times (ulong block hash + NBT_Short height + ulong biome hash)
-#define PART_TRANSFER_SIZE 4608
+#include "zlib_ex.h"
+#include "nbt.h"
+#include "utils.h"
+#include "hash.h"
+#include "extract_region_surface.h"
 
-// Maximum size useable by the block palette
-#define MAX_BLOCK_PALETTE 786432
-// Maximum size useable by the block palette indices
-#define MAX_BLOCK_DATA 196608
-// Maximum size useable by the biome palette
-#define MAX_BIOME_PALETTE 12288
-// Maximum size useable by the biome palette indices
-#define MAX_BIOME_DATA 1536
-// Partition size used by the block palette (24 partitions)
-#define PART_BLOCK_PALETTE 4096
-// Partition size used by the block palette indices (24 partitions)
-#define PART_BLOCK_DATA 1024
-// Partition size used by the biome palette (24 partitions)
-#define PART_BIOME_PALETTE 64
-// Partition size used by the biome palette indices (24 partitions)
-#define PART_BIOME_DATA 8
-
-int is_block_passable(ulong block_hash) {
+static int is_block_passable(ulong block_hash) {
 	return 
 		block_hash==BLOCK_MINECRAFT_BARRIER || 
 		block_hash==BLOCK_MINECRAFT_AIR || 
@@ -40,7 +20,7 @@ int is_block_passable(ulong block_hash) {
 		block_hash==BLOCK_MINECRAFT_STRUCTURE_VOID;
 }
 
-int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void* transfer, ulong* blockPltt, ulong* blockData, ulong* biomePltt, ulong* biomeData) {
+static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void* transfer, ulong* blockPltt, ulong* blockData, ulong* biomePltt, ulong* biomeData) {
 	int error_code;
 
 	//Fetch location of chunk data. Saved in offset.
@@ -64,7 +44,8 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 		chunkLen*=256;
 		chunkLen+=(int)getc(regionFile);
 	}
-	int compMeth=(int)getc(regionFile);
+	//int compMeth=(int)getc(regionFile);
+	fseek(regionFile,1,SEEK_CUR);
 	chunkLen--;
 	for(int i=0; i<chunkLen; i++) {
 		putc(getc(regionFile),cfp);
@@ -72,7 +53,8 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 
 	//Decompress chunk data and save binary to tfp.
 	FILE *tfp;
-	tfp=tmpfile();
+	//tfp=tmpfile();
+	tfp = fopen("temp.nbt","wb+");
 	fseek(cfp,0,SEEK_SET);
 	if(inf(cfp,tfp)!=Z_OK) {
 		fclose(tfp);
@@ -120,29 +102,35 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 		fclose(tfp);
 		fclose(htmpFile);
 		fclose(sctnsFile);
-		fprintf(stderr,"[Extracting (%i, %i)] Failed to read Sections. NBT error code: %i\n", rx, rz, nbtRetVal);
+		fprintf(stderr,"[Extracting (%i, %i), (%i, %i)] Failed to read Sections. NBT error code: %i\n", rx, rz, cx, cz, nbtRetVal);
 		return CHUNK_CORRUPTED;
 	}
 	fclose(tfp);
 
 	//Extract Heightmap into htMap
-	NBT_Short* htMap=malloc(256*sizeof(NBT_Short));
+	NBT_Long* htMap=malloc(256*sizeof(NBT_Long));
 	NBT_Long htmapBin;
 	if(noHtMp) {
 		for(int i=0; i<256; i++) {
-			htMap[i]=384;
+			htMap[i]=16*PART_COUNT;
 		}
 	}
 	else {
-		fseek(htmpFile,4,SEEK_SET);
-		for(int i=0; i<37; i++) {
+		fseek(htmpFile,0,SEEK_SET);
+		NBT_Int htMapLength=37;
+		readPayload_Int(htmpFile,&htMapLength);
+		//fprintf(stderr,"[Heightmap (%i, %i), (%i, %i)] [Debug] `htMapLength` is %i\n", rx, rz, cx, cz, htMapLength);
+		int bitCount=htMapLength/4;
+		int bitMask=(1<<bitCount)-1;
+		int htPerLong=64/bitCount;
+		for(int i=0; i<htMapLength; i++) {
 			readPayload_Long(htmpFile,&htmapBin);
-			for(int j=0; j<7; j++) {
-				int place=i*7+j;
+			for(int j=0; j<htPerLong; j++) {
+				int place=i*htPerLong+j;
 				if(place>=256) {
 					break;
 				}
-				htMap[place]=(NBT_Short)(htmapBin>>(j*9))&511;
+				htMap[place]=(NBT_Long)(htmapBin>>(j*bitCount))&bitMask;
 			}
 		}
 		fclose(htmpFile);
@@ -150,12 +138,12 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 
 	//Discover section Y indices, palette index bit count, and palette and blocks positions
 	//store palette index bit counts by Y index in plttBits
-	NBT_Byte sctnHomo[24];
-	NBT_Int plttBits[24];
-	NBT_Byte bioHomo[24];
-	NBT_Int bioPlttBits[24];
-	NBT_Byte homoFoundId[24];
-	NBT_Byte bioHomoFoundId[24];
+	NBT_Byte sctnHomo[PART_COUNT];
+	NBT_Int plttBits[PART_COUNT];
+	NBT_Byte bioHomo[PART_COUNT];
+	NBT_Int bioPlttBits[PART_COUNT];
+	NBT_Byte homoFoundId[PART_COUNT];
+	NBT_Byte bioHomoFoundId[PART_COUNT];
 	fseek(sctnsFile,1,SEEK_SET);
 	NBT_Int sectionCount;
 	readPayload_Int(sctnsFile,&sectionCount);
@@ -170,9 +158,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 		NBT_Byte Y=-2;
 		NBT_Int Yint=-2;
 		long int palettePos;
-		long int blockPalette;
 		long int bioPalettePos;
-		long int biomePalette;
 		long int blocksPos;
 		long int biomesPos;
 		NBT_Int plttLen=0;
@@ -277,7 +263,7 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 			else
 				skip=TRUE;
 		}
-		if(Yint>=0 && Yint<24) {
+		if(Yint>=0 && Yint<PART_COUNT) {
 			plttBits[Yint]=plttBitCount;
 			sctnHomo[Yint]=homogenous;
 			bioPlttBits[Yint]=bioPlttBitCount;
@@ -365,13 +351,13 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 	ulong* blocks=(ulong*)malloc(256*sizeof(ulong));
 	NBT_Byte unknownHeight[256];
 	NBT_Byte anyUnknownHeight=FALSE;
-	ulong homoId[24];
-	int homoUnknown[24];
+	ulong homoId[PART_COUNT];
+	int homoUnknown[PART_COUNT];
 	for(int i=0; i<256; i++) {
 		unknownHeight[i]=FALSE;
 		// Calculate the section Y index from the height map.
 		NBT_Int sctnY=(htMap[i]-1)/16;
-		if(sctnY>=0 && sctnY<24) {
+		if(sctnY>=0 && sctnY<PART_COUNT) {
 			NBT_Int plttInd;
 			if(sctnHomo[sctnY]) {
 				plttInd=0;
@@ -460,14 +446,14 @@ int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFile, void
 
 	//Extract biomes.
 	ulong* biomes=(ulong*)malloc(256*sizeof(ulong));
-	ulong bioHomoId[24];
+	ulong bioHomoId[PART_COUNT];
 	for(int i=0; i<256; i++) {
 		int biomeX=(i%16)/4;
 		int biomeZ=(i/16)/4;
 		int biomeInd=biomeX+biomeZ*4;
 		// Calculate the section Y index from the height map.
 		NBT_Int sctnY=(htMap[i]-1)/16;
-		if(sctnY>=0 && sctnY<24) {
+		if(sctnY>=0 && sctnY<PART_COUNT) {
 			NBT_Int plttInd;
 			if(bioHomo[sctnY]) {
 				plttInd=0;

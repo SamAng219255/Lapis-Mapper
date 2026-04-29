@@ -1,29 +1,14 @@
-typedef struct {
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
-	uint8_t a;
-} rgba;
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include <png.h>
 
-#define newRGBA(R,G,B,A) ((rgba){.r=(R),.g=(G),.b=(B),.a=(A)})
-#define rgbaMatch(Color1,Color2) ((Color1).r==(Color2).r && (Color1).g==(Color2).g && (Color1).b==(Color2).b && (Color1).a==(Color2).a)
-#define setArrayRGBA(arr,Color) (arr)[0]=(Color).r; \
-(arr)[1]=(Color).g; \
-(arr)[2]=(Color).b; \
-(arr)[3]=(Color).a
-#define newRGBAFromArr(arr) ((rgba){.r=(arr)[0],.g=(arr)[1],.b=(arr)[2],.a=(arr)[3]})
-#define newRGBAStr(Str) ((rgba){.r=(0x ## Str>>24)&255,.g=(0x ## Str>>16)&255,.b=(0x ## Str>>8)&255,.a=(0x ## Str)&255})
-#define newRGBStr(Str) ((rgba){.r=(0x ## Str>>16)&255,.g=(0x ## Str>>8)&255,.b=(0x ## Str)&255,.a=255})
+#include "hash.h"
+#include "utils.h"
+#include "render_region.h"
+#include "nbt.h"
 
-typedef struct {
-	ulong* blocks;
-	NBT_Byte* rgb;
-	int sz;
-} paletteData;
-
-#define newPaletteData(Blocks, RGB, Sz) ((paletteData){.blocks=(Blocks),.rgb=(RGB),.sz=(Sz)})
-
-int saveImage(png_bytep buffer, int width, int height, FILE* fp) {
+static int saveImage(png_bytep buffer, int width, int height, FILE* fp) {
 	//Allocating and initialzing the png_struct and png_info variables
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)
@@ -45,13 +30,13 @@ int saveImage(png_bytep buffer, int width, int height, FILE* fp) {
 
 	//write IHDR
 	//png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, color_type, interlace_type, compression_type, filter_method)
-	png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_ADAM7, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	//actually write the data
 	png_write_info(png_ptr, info_ptr);
 
 	//format the image data structure
-	png_byte *row_pointers[height];
+	png_byte** row_pointers = malloc(height * sizeof(png_byte*));
 	for (int i=0; i<height; i++)
 		row_pointers[i]=buffer+i*width*4;
 
@@ -63,11 +48,12 @@ int saveImage(png_bytep buffer, int width, int height, FILE* fp) {
 
 	//free memory
 	png_destroy_write_struct(&png_ptr, &info_ptr);
+	free(row_pointers);
 
 	return 0;
 }
 
-rgba multiColor(rgba color1, rgba color2) {
+static rgba multiColor(rgba color1, rgba color2) {
 	rgba newColor=newRGBA(0,0,0,0);
 	newColor.r=(color1.r*color2.r)/255;
 	newColor.g=(color1.g*color2.g)/255;
@@ -76,7 +62,7 @@ rgba multiColor(rgba color1, rgba color2) {
 	return newColor;
 }
 
-rgba tintGrass(rgba color, ulong biome) {
+static rgba tintGrass(rgba color, ulong biome) {
 	switch(biome) {
 		case BIOME_MINECRAFT_MUSHROOM_FIELDS:
 			return multiColor(color,newRGBStr(55C93F));
@@ -194,7 +180,7 @@ rgba tintGrass(rgba color, ulong biome) {
 			break;
 	}
 }
-rgba tintLeaves(rgba color, ulong biome) {
+static rgba tintLeaves(rgba color, ulong biome) {
 	switch(biome) {
 		case BIOME_MINECRAFT_MUSHROOM_FIELDS:
 			return multiColor(color,newRGBStr(2BBB0F));
@@ -312,7 +298,7 @@ rgba tintLeaves(rgba color, ulong biome) {
 			break;
 	}
 }
-rgba tintDeadLeaves(rgba color, ulong biome) {
+static rgba tintDeadLeaves(rgba color, ulong biome) {
 	switch(biome) {
 		case BIOME_MINECRAFT_MUSHROOM_FIELDS:
 			return multiColor(color,newRGBStr(A36246));
@@ -422,7 +408,7 @@ rgba tintDeadLeaves(rgba color, ulong biome) {
 			break;
 	}
 }
-rgba tintWater(rgba color, ulong biome) {
+static rgba tintWater(rgba color, ulong biome) {
 	switch(biome) {
 		case BIOME_MINECRAFT_COLD_OCEAN:
 		case BIOME_MINECRAFT_DEEP_COLD_OCEAN:
@@ -466,8 +452,31 @@ rgba tintWater(rgba color, ulong biome) {
 	}
 }
 
-rgba tint(rgba color, ulong block, NBT_Short height, NBT_Short northHeight, NBT_Short westHeight, ulong biome) {
-	double gradient=clamp((int)((northHeight>height ? 10-log(northHeight-height)/log(2) : (northHeight<height ? 12+log(height-northHeight)/log(2) : 11.0))*(westHeight>height ? 10-log(westHeight-height)/log(2) : (westHeight<height ? 12+log(height-westHeight)/log(2) : 11.0)))/121.0,0.5,1.5);
+static rgba tint(rgba color, ulong block, NBT_Short height, NBT_Short northHeight, NBT_Short westHeight, ulong biome) {
+	double gradient = clamp(
+		(int)(
+			(
+				northHeight > height 
+				? 10 - log(northHeight - height) / log(2) 
+				: (
+					northHeight < height 
+					? 12 + log(height - northHeight) / log(2) 
+					: 11.0
+				)
+			) * 
+			(
+				westHeight > height 
+				? 10 - log(westHeight - height) / log(2) 
+				: (
+					westHeight < height 
+					? 12 + log(height - westHeight) / log(2) 
+					: 11.0
+				)
+			)
+		) / 121.0,
+		0.5,
+		1.5
+	);
 	rgba modifiedColor=color;
 	modifiedColor.r=(uint8_t)clamp(color.r*gradient,0,255);
 	modifiedColor.g=(uint8_t)clamp(color.g*gradient,0,255);
@@ -514,14 +523,13 @@ rgba tint(rgba color, ulong block, NBT_Short height, NBT_Short northHeight, NBT_
 	}
 }
 
-ulong lastBlock=0;
-rgba lastColor=newRGBA(0,0,0,0);
+static ulong lastBlock=0;
+static rgba lastColor=newRGBA(0,0,0,0);
 
-rgba getColor(ulong block, NBT_Short height, NBT_Short northHeight, NBT_Short westHeight, ulong biome, paletteData palette) {
+static rgba getColor(ulong block, NBT_Short height, NBT_Short northHeight, NBT_Short westHeight, ulong biome, paletteData palette) {
 	if(block==lastBlock) {
 		return tint(lastColor,block,height,northHeight,westHeight,biome);
 	}
-	ulong compBlock;
 	lastBlock=block;
 	for(int i=0; i<palette.sz; i++) {
 		if(palette.blocks[i]==block) {
