@@ -67,6 +67,27 @@ char* NBTagNames[]={
 	"Long_Array"
 };
 
+char* NBTErrorNames[]={
+	"OK",
+	"Invalid Type",
+	"Tag Was Not Found",
+	"Invalid Type, Tag Was Not Found",
+	"Failed to Allocate Memory",
+	"Invalid Type, Failed to Allocate Memory",
+	"Tag Was Not Found, Failed to Allocate Memory",
+	"Invalid Type, Tag Was Not Found, Failed to Allocate Memory"
+};
+
+#define TRY(expr, fmt, ...) do {                               \
+    int ret__ = (expr);                                            \
+    if (!NBT_Quiet && ret__ != NBT_OK) {                           \
+        fprintf(stderr, "[%s:%d] " fmt ": %s\n",                   \
+            __FILE__, __LINE__, ##__VA_ARGS__,                     \
+            NBTErrorNames[ret__]);                                 \
+        return ret__;                                              \
+    }                                                              \
+} while (0)
+
 int readPayload_Binary(FILE* fp, void* tar, size_t bytes) {
 	char* num=(char*)tar;
 	freadE(num,bytes,1,fp);
@@ -371,7 +392,7 @@ void cloneDynamic(FILE* origin, FILE* dest, NBT_Byte tagid) {
 int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* foundNameLen, FILE* origin, size_t depth, char* path[depth], int indexType[depth]) {
 	NBT_Byte firstEnclosingTag=getc(origin);
 	NBT_Short nameLen;
-	readPayload_Short(origin,&nameLen);
+	TRY(readPayload_Short(origin,&nameLen), "Failed to read length of enclosing tag");
 	fseek(origin,nameLen,SEEK_CUR);
 
 	NBT_Byte enclosingTag;
@@ -383,21 +404,21 @@ int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* f
 			case TAG_Int_Array:
 			case TAG_Long_Array:
 				if(indexType[cur_depth]!=NBT_IND_Number) {
-					if(!NBT_Quiet) {printf("Enclosing tag \"%s\" (%hhu) at depth %zu does not match index type.\n", NBTagNames[enclosingTag], enclosingTag, cur_depth);}
+					if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Enclosing tag \"%s\" (%hhu) at depth %zu does not match index type.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], enclosingTag, cur_depth);}
 					return NBT_ERR_INVALID_TYPE;
 				}
-				NBT_Int length;
-				readPayload_Int(origin,&length);
+				NBT_Int length = 0;
+				TRY(readPayload_Int(origin,&length), "Failed to read length of %s", NBTagNames[enclosingTag]);
 				if(length<=*(NBT_Int*)path[cur_depth]) {
 					switch(indexType[cur_depth]) {
 						case NBT_IND_String:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index \"%s\".\n", NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index \"%s\".\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
 							break;
 						case NBT_IND_Number:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index %d.\n", NBTagNames[enclosingTag], cur_depth, *(NBT_Int*)path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index %d.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, *(NBT_Int*)path[cur_depth]);}
 							break;
 						default:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index \"%s\" of unknown type.\n", NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index \"%s\" of unknown type.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
 							break;
 					}
 					return NBT_ERR_TAG_NOT_FOUND;
@@ -407,22 +428,22 @@ int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* f
 				break;
 			case TAG_List:
 				if(indexType[cur_depth]!=NBT_IND_Number) {
-					if(!NBT_Quiet) {printf("Enclosing tag \"%s\" (%hhu) at depth %zu does not match index type.\n", NBTagNames[enclosingTag], enclosingTag, cur_depth);}
+					if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Enclosing tag \"%s\" (%hhu) at depth %zu does not match index type.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], enclosingTag, cur_depth);}
 					return NBT_ERR_INVALID_TYPE;
 				}
 				NBT_Byte interiorTag=getc(origin);
 				NBT_Int size;
-				readPayload_Int(origin,&size);
+				TRY(readPayload_Int(origin,&size), "Failed to read length of List");
 				if(size<=*(NBT_Int*)path[cur_depth]) {
 					switch(indexType[cur_depth]) {
 						case NBT_IND_String:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index \"%s\".\n", NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index \"%s\".\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
 							break;
 						case NBT_IND_Number:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index %d.\n", NBTagNames[enclosingTag], cur_depth, *(NBT_Int*)path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index %d.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, *(NBT_Int*)path[cur_depth]);}
 							break;
 						default:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index \"%s\" of unknown type.\n", NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index \"%s\" of unknown type.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
 							break;
 					}
 					return NBT_ERR_TAG_NOT_FOUND;
@@ -445,26 +466,7 @@ int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* f
 					case TAG_List:
 					case TAG_Compound:
 						for(NBT_Int i=0; i<*(NBT_Int*)path[cur_depth]; i++) {
-							switch(interiorTag) {
-								case TAG_Byte_Array:
-									skipPayload_Byte_Array(origin);
-									break;
-								case TAG_Int_Array:
-									skipPayload_Int_Array(origin);
-									break;
-								case TAG_Long_Array:
-									skipPayload_Long_Array(origin);
-									break;
-								case TAG_String:
-									skipPayload_String(origin);
-									break;
-								case TAG_List:
-									skipPayload_List(origin);
-									break;
-								case TAG_Compound:
-									skipPayload_Compound(origin);
-									break;
-							}
+							TRY(skipPayload_Variable(origin,interiorTag), "Failed to bypass list items");
 						}
 						break;
 				}
@@ -472,7 +474,7 @@ int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* f
 				break;
 			case TAG_Compound:
 				if(indexType[cur_depth]!=NBT_IND_String) {
-					if(!NBT_Quiet) {printf("Enclosing tag \"%s\" (%hhu) at depth %zu does not match index type.\n", NBTagNames[enclosingTag], enclosingTag, cur_depth);}
+					if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Enclosing tag \"%s\" (%hhu) at depth %zu does not match index type.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], enclosingTag, cur_depth);}
 					return NBT_ERR_INVALID_TYPE;
 				}
 				NBT_Short pathNameLen=0;
@@ -483,7 +485,7 @@ int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* f
 				NBT_Byte tagid;
 				while((tagid=getc(origin))!=TAG_End) {
 					//printf("Tag found: %s (%hhX)\n",NBTagNames[tagid],tagid);
-					readPayload_Short(origin,&nameLen);
+					TRY(readPayload_Short(origin,&nameLen), "Failed to read name of tag in compound");
 					//printf("Tag Name Length: %d\n",nameLen);
 					if(nameLen==pathNameLen) {
 						int match=TRUE;
@@ -499,18 +501,18 @@ int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* f
 					else {
 						fseek(origin,nameLen,SEEK_CUR);
 					}
-					skipPayload_Variable(origin,tagid);
+					TRY(skipPayload_Variable(origin,tagid), "Failed to bypass tag in compound");
 				}
 				if(tagid==TAG_End) {
 					switch(indexType[cur_depth]) {
 						case NBT_IND_String:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index \"%s\".\n", NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index \"%s\".\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
 							break;
 						case NBT_IND_Number:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index %d.\n", NBTagNames[enclosingTag], cur_depth, *(NBT_Int*)path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index %d.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, *(NBT_Int*)path[cur_depth]);}
 							break;
 						default:
-							if(!NBT_Quiet) {printf("Reached end of %s Tag at depth %zu without encountering index \"%s\" of unknown type.\n", NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
+							if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Reached end of %s Tag at depth %zu without encountering index \"%s\" of unknown type.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], cur_depth, path[cur_depth]);}
 							break;
 					}
 					return NBT_ERR_TAG_NOT_FOUND;
@@ -524,11 +526,11 @@ int findTagInFile(NBT_Byte* foundTagType, NBT_Byte* hasCompleteTag, NBT_Short* f
 			case TAG_Float:
 			case TAG_Double:
 			case TAG_String:
-				if(!NBT_Quiet) {printf("Enclosing tag \"%s\" (%hhu) at depth %zu does not have elements.\n", NBTagNames[enclosingTag], enclosingTag, cur_depth);}
+				if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Enclosing tag \"%s\" (%hhu) at depth %zu does not have elements.\n", __FILE__, __LINE__, NBTagNames[enclosingTag], enclosingTag, cur_depth);}
 				return NBT_ERR_INVALID_TYPE;
 				break;
 			default:
-				if(!NBT_Quiet) {printf("Unknown enclosing tag %hhu at depth %zu.\n", enclosingTag, cur_depth);}
+				if(!NBT_Quiet) {fprintf(stderr,"[%s:%d] Unknown enclosing tag %hhu at depth %zu.\n", __FILE__, __LINE__, enclosingTag, cur_depth);}
 				return NBT_ERR_INVALID_TYPE;
 				break;
 		}

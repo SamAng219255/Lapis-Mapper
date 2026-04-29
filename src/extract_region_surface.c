@@ -53,8 +53,7 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 
 	//Decompress chunk data and save binary to tfp.
 	FILE *tfp;
-	//tfp=tmpfile();
-	tfp = fopen("temp.nbt","wb+");
+	tfp=tmpfile();
 	fseek(cfp,0,SEEK_SET);
 	if(inf(cfp,tfp)!=Z_OK) {
 		fclose(tfp);

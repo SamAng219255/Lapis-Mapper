@@ -22,9 +22,9 @@ typedef struct {
 #define TAG_Long_Array (char)12
 
 #define NBT_OK 0
-#define NBT_ERR_INVALID_TYPE -1
-#define NBT_ERR_TAG_NOT_FOUND -2
-#define NBT_ERR_FAILED_ALLOCATION -3
+#define NBT_ERR_INVALID_TYPE 1
+#define NBT_ERR_TAG_NOT_FOUND 2
+#define NBT_ERR_FAILED_ALLOCATION 4
 
 #define NBT_NULL_ENDED -1
 
@@ -73,6 +73,7 @@ extern size_t payloadSizes[];
 extern size_t payloadElementSizes[];
 extern NBT_Byte payloadElements[];
 extern char* NBTagNames[];
+extern char* NBTErrorNames[];
 extern int readPayload_Binary(FILE* fp, void* tar, size_t bytes);
 extern int readPayload_Byte(FILE* fp, NBT_Byte* tar);
 extern int readPayload_Short(FILE* fp, NBT_Short* tar);
