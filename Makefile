@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -Iinclude -Ilib
 CFLAGS += $(shell pkg-config --cflags libpng)
-LDLIBS = $(shell pkg-config --libs libpng zlib)
+LDLIBS = $(shell pkg-config --libs libpng zlib) -lm
 
 SRC = $(wildcard src/*.c) $(wildcard lib/*.c)
 OBJ = $(patsubst %.c,build/%.o,$(SRC))
