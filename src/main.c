@@ -95,12 +95,19 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 	biomeData = (ulong*)malloc(MAX_BIOME_DATA);// Maximum size useable by the biome palette indices
 	if(transfer==NULL || blockPltt==NULL || blockData==NULL || biomePltt==NULL || biomeData==NULL) {
 		printf("Failed to initialize memory.");
+		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 		free(colors.blocks);
+		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 		free(colors.rgb);
+		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 		free(transfer);
+		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 		free(blockPltt);
+		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 		free(blockData);
+		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 		free(biomePltt);
+		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 		free(biomeData);
 		return 0;
 	}
@@ -311,11 +318,18 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 	}
 	//nbt_free_all();
 
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(colors.blocks);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(colors.rgb);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(transfer);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(blockPltt);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(blockData);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(biomePltt);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(biomeData);
 }

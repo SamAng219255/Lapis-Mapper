@@ -351,6 +351,7 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 							blockId.string=(char*)malloc(blockId.length);
 							fread(blockId.string,1,blockId.length,sctnsFile);
 							blockPltt[Yind_block+w]=hash(blockId.string,blockId.length);
+							fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 							free(blockId.string);
 						}
 						else {
@@ -374,6 +375,7 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 				biomeId.string=(char*)malloc(biomeId.length);
 				fread(biomeId.string,1,biomeId.length,sctnsFile);
 				biomePltt[Yind_biome+w]=hash(biomeId.string,biomeId.length);
+				fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 				free(biomeId.string);
 			}
 
@@ -565,8 +567,11 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 		*(NBT_Short*)(offset+sizeof(ulong)) = htMap[i];
 		*(ulong*)(offset+sizeof(ulong)+sizeof(NBT_Short)) = biomes[i];
 	}
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(biomes);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(blocks);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(htMap);
 
 	return CHUNK_OK;

@@ -9,6 +9,7 @@
 #include "nbt.h"
 
 static int saveImage(png_bytep buffer, int width, int height, FILE* fp) {
+	fprintf(stderr, "[%s:%d] libpng's code", __FILE__, __LINE__);
 	//Allocating and initialzing the png_struct and png_info variables
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)
@@ -47,7 +48,9 @@ static int saveImage(png_bytep buffer, int width, int height, FILE* fp) {
 	png_write_end(png_ptr, info_ptr);
 
 	//free memory
+	fprintf(stderr, "[%s:%d] Destroy Write", __FILE__, __LINE__);
 	png_destroy_write_struct(&png_ptr, &info_ptr);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(row_pointers);
 
 	return 0;
@@ -601,13 +604,16 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 			}
 		}
 	}
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(regionHeightXLayer);
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(regionHeightZLayer);
 
 	if(saveImage(buffer,512,512,sfp)!=0) {
 		perror("Saving failed.");
 	}
 
+	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
 	free(buffer);
 	fclose(sfp);
 	
