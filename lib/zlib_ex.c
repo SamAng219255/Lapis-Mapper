@@ -65,7 +65,9 @@ int inf(FILE *source, FILE *dest) {
     /* clean up and return */
     (void)inflateEnd(&strm);
     if (ret==Z_DATA_ERROR) {perror(strm.msg);}
-    return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+    ret = ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+    if (ret==Z_DATA_ERROR) {perror("Unknown error while inflating.");}
+    return ret;
 }
 
 int def(FILE *source, FILE *dest, int level)

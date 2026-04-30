@@ -27,8 +27,10 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	int locOffset=(cx+cz*32)<<2;
 	fseek(regionFile,locOffset,SEEK_SET);
 	unsigned char hdr[4];
-	if (fread(hdr, 1, 4, regionFile) != 4)
+	if (fread(hdr, 1, 4, regionFile) != 4) {
+		fprintf(stderr, "[%s:%d] Failed to read chunk description in region header.\n", __FILE__, __LINE__);
 		return CHUNK_CORRUPTED;
+	}
 
 	int offset = ((hdr[0] << 16) | (hdr[1] << 8) | hdr[2]) << 12;
 	if (hdr[3] == 0)
@@ -38,8 +40,10 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	fseek(regionFile,offset,SEEK_SET);
 
 	unsigned char chunkHdr[5];
-	if (fread(chunkHdr, 1, 5, regionFile) != 5)
+	if (fread(chunkHdr, 1, 5, regionFile) != 5) {
+		fprintf(stderr, "[%s:%d] Failed to read chunk header.\n", __FILE__, __LINE__);
 		return CHUNK_CORRUPTED;
+	}
 
 	int chunkLen = (chunkHdr[0] << 24) |
 	               (chunkHdr[1] << 16) |
@@ -48,18 +52,24 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 
 	int compMeth=chunkHdr[4];
 	if(compMeth != 2) {
-		fprintf(stderr, "Incorrect compression method: %d\n", compMeth);
+		fprintf(stderr, "[%s:%d] Incorrect compression method: %d\n", __FILE__, __LINE__, compMeth);
 		return CHUNK_CORRUPTED;
 	}
 	chunkLen--;
 
 	FILE *cfp = tmpfile();
-	if (!cfp) return CHUNK_CORRUPTED;
+	if (!cfp) {
+		fprintf(stderr, "[%s:%d] Failed to create chunk file.\n", __FILE__, __LINE__);
+		return CHUNK_NOT_SAVED;
+	}
 	char buffer[8192];
+	int initChunkLen = chunkLen;
 	while (chunkLen > 0) {
 		int n = chunkLen > (int)sizeof(buffer) ? (int)sizeof(buffer) : chunkLen;
-		if ((int)fread(buffer, 1, n, regionFile) != n) {
+		int readBytes = (int)fread(buffer, 1, n, regionFile);
+		if (readBytes != n) {
 			fclose(cfp);
+			fprintf(stderr, "[%s:%d] Failed to read enough bytes in chunk. Read %d of %d bytes.\n", __FILE__, __LINE__, initChunkLen - chunkLen + readBytes, initChunkLen);
 			return CHUNK_CORRUPTED;
 		}
 		fwrite(buffer, 1, n, cfp);

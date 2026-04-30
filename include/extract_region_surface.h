@@ -2,6 +2,7 @@
 #define CHUNK_NOT_PRESENT -1
 #define CHUNK_CORRUPTED -2
 #define CHUNK_TOO_OLD -3
+#define CHUNK_NOT_SAVED -4
 
 // Size used by the data sent from the extractor to the renderer
 // 32x32 chunks in a region times 256 blocks in a chunk times (ulong block hash + NBT_Short height + ulong biome hash)
