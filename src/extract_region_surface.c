@@ -178,12 +178,16 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	NBT_Int bioPlttBits[PART_COUNT];
 	NBT_Byte homoFoundId[PART_COUNT];
 	NBT_Byte bioHomoFoundId[PART_COUNT];
+	NBT_Byte sctnExists[PART_COUNT];
 	fseek(sctnsFile,1,SEEK_SET);
 	NBT_Int sectionCount;
 	readPayload_Int(sctnsFile,&sectionCount);
 	NBT_Byte sctnElemTagid;
 	NBT_Short nameLen;
 	char* searchElemNames[]={"block_states","biomes","palette","data","Name"};
+	for(NBT_Int i=0; i<PART_COUNT; i++) {
+		sctnExists[i] = FALSE;
+	}
 	for(NBT_Int i=0; i<sectionCount; i++) {
 		int sanity=512;
 		int depth=0;
@@ -298,6 +302,7 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 				skip=TRUE;
 		}
 		if(Yint>=0 && Yint<PART_COUNT) {
+			sctnExists[Yint]=TRUE;
 			plttBits[Yint]=plttBitCount;
 			sctnHomo[Yint]=homogenous;
 			bioPlttBits[Yint]=bioPlttBitCount;
@@ -392,6 +397,12 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 		// Calculate the section Y index from the height map.
 		NBT_Int sctnY=(htMap[i]-1)/16;
 		if(sctnY>=0 && sctnY<PART_COUNT) {
+			if(!sctnExists[sctnY]) {
+				unknownHeight[i]=TRUE;
+				anyUnknownHeight=TRUE;
+				continue;
+			}
+
 			NBT_Int plttInd;
 			if(sctnHomo[sctnY]) {
 				plttInd=0;
@@ -444,6 +455,8 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 				//printf("Unknown height at index %i.\n\n", i);
 				NBT_Short initSctn=(htMap[i]-1)/16;
 				for(NBT_Int sctnY=initSctn; sctnY>=0; sctnY--) {
+					if(!sctnExists[sctnY]) continue;
+
 					if(sctnHomo[sctnY] && homoFoundId[sctnY]) {
 						blocks[i]=homoId[sctnY];
 						if(is_block_passable(blocks[i]))
