@@ -95,7 +95,7 @@ size_t fwriteE(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 		}
 	}
 	size_t result=fwrite(nptr,size,nmemb,stream);
-	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+	fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 	free(nptr);
 	return result;
 }
@@ -109,7 +109,7 @@ size_t freadE(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 			((uint8_t*)ptr)[ind+j]=((uint8_t*)nptr)[ind+size-j-1];
 		}
 	}
-	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+	fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 	free(nptr);
 	return result;
 }

@@ -5,7 +5,7 @@
 #include "zlib_ex.h"
 
 int inf(FILE *source, FILE *dest) {
-    fprintf(stderr, "[%s:%d] zlib's code", __FILE__, __LINE__);
+    fprintf(stderr, "[%s:%d] zlib's code\n", __FILE__, __LINE__);
     int ret;
     unsigned have;
     z_stream strm;
@@ -73,7 +73,7 @@ int inf(FILE *source, FILE *dest) {
 
 int def(FILE *source, FILE *dest, int level)
 {
-    fprintf(stderr, "[%s:%d] zlib's code", __FILE__, __LINE__);
+    fprintf(stderr, "[%s:%d] zlib's code\n", __FILE__, __LINE__);
     int ret, flush;
     unsigned have;
     z_stream strm;

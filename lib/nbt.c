@@ -307,7 +307,7 @@ void cloneNumber(FILE* origin, FILE* dest, NBT_Byte tagid) {
 	char* bytes=(char*)malloc(payloadSizes[tagid]);
 	freadE(bytes,1,payloadSizes[tagid],origin);
 	fwriteE(bytes,1,payloadSizes[tagid],dest);
-	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+	fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 	free(bytes);
 }
 void cloneArray(FILE* origin, FILE* dest, NBT_Byte tagid) {
@@ -318,7 +318,7 @@ void cloneArray(FILE* origin, FILE* dest, NBT_Byte tagid) {
 	char* bytes=(char*)malloc(byteCount);
 	freadE(bytes,1,byteCount,origin);
 	fwriteE(bytes,1,byteCount,dest);
-	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+	fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 	free(bytes);
 }
 void cloneString(FILE* origin, FILE* dest) {
@@ -329,7 +329,7 @@ void cloneString(FILE* origin, FILE* dest) {
 	char* bytes=(char*)malloc(byteCount);
 	freadE(bytes,1,byteCount,origin);
 	fwriteE(bytes,1,byteCount,dest);
-	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+	fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 	free(bytes);
 }
 void cloneList(FILE* origin, FILE* dest) {
@@ -341,7 +341,7 @@ void cloneList(FILE* origin, FILE* dest) {
 	char* bytes=(char*)malloc(byteCount);
 	freadE(bytes,1,byteCount,origin);
 	fwriteE(bytes,1,byteCount,dest);
-	fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+	fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 	free(bytes);
 	for(NBT_Int i=0; i<size; i++) {
 		cloneDynamic(origin,dest,interiorTag);
@@ -357,7 +357,7 @@ void cloneCompound(FILE* origin, FILE* dest) {
 		char* name=(char*)malloc(nameLen);
 		fread(name,1,nameLen,origin);
 		fwriteE(name,1,nameLen,dest);
-		fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+		fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 		free(name);
 		cloneDynamic(origin,dest,tagid);
 	}
@@ -616,7 +616,7 @@ int cloneTagFromFile(FILE* origin, FILE* dest, size_t depth, char* path[depth], 
 			char* tagHeader=(char*)malloc(headLen);
 			fread(tagHeader,1,headLen,origin);
 			fwrite(tagHeader,1,headLen,dest);
-			fprintf(stderr, "[%s:%d] Free", __FILE__, __LINE__);
+			fprintf(stderr, "[%s:%d] Free\n", __FILE__, __LINE__);
 			free(tagHeader);
 		}
 		else {
