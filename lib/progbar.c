@@ -31,7 +31,6 @@ void showProgBar(progbar* bar) {
 	size_t progVal=(8*bar->length>100 ? 8*bar->length*bar->value : 100*bar->value)/bar->max;
 	if(progVal>bar->lastUpdated) {
 		bar->lastUpdated=progVal;
-		printf("\033[A\33[2K");
 		printProgBar(bar);
 	}
 }
