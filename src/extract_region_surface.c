@@ -27,8 +27,9 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	int locOffset=(cx+cz*32)<<2;
 	fseek(regionFile,locOffset,SEEK_SET);
 	unsigned char hdr[4];
-	if (fread(hdr, 1, 4, regionFile) != 4) {
-		fprintf(stderr, "[%s:%d] Failed to read chunk description in region header.\n", __FILE__, __LINE__);
+	int headerReadBytes = fread(hdr, 1, 4, regionFile);
+	if (headerReadBytes != 4) {
+		fprintf(stderr, "[%s:%d] Failed to read chunk description in region header. Read %d bytes.\n", __FILE__, __LINE__, headerReadBytes);
 		return CHUNK_CORRUPTED;
 	}
 
@@ -40,8 +41,9 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	fseek(regionFile,offset,SEEK_SET);
 
 	unsigned char chunkHdr[5];
-	if (fread(chunkHdr, 1, 5, regionFile) != 5) {
-		fprintf(stderr, "[%s:%d] Failed to read chunk header.\n", __FILE__, __LINE__);
+	int chunkHeaderReadBytes = fread(chunkHdr, 1, 5, regionFile);
+	if (chunkHeaderReadBytes != 5) {
+		fprintf(stderr, "[%s:%d] Failed to read chunk header. Read %d bytes.\n", __FILE__, __LINE__, chunkHeaderReadBytes);
 		return CHUNK_CORRUPTED;
 	}
 
