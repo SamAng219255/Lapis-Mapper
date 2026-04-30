@@ -3,6 +3,7 @@
 static char* barElements[]={" ","▏","▎","▍","▌","▋","▊","▉","█"};
 
 static void printProgBar(progbar* bar) {
+	if(bar->max == 0) bar->max = 1;
 	size_t percent=(100*bar->value)/bar->max;
 	printf("%s | %3zu%% | ", bar->title, percent);
 	size_t lenVal=bar->length*bar->value;
@@ -28,6 +29,7 @@ void startProgBar(progbar* bar) {
 }
 
 void showProgBar(progbar* bar) {
+	if(bar->max == 0) bar->max = 1;
 	size_t progVal=(8*bar->length>100 ? 8*bar->length*bar->value : 100*bar->value)/bar->max;
 	if(progVal>bar->lastUpdated) {
 		bar->lastUpdated=progVal;

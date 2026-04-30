@@ -29,11 +29,11 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	unsigned char hdr[4];
 	int headerReadBytes = fread(hdr, 1, 4, regionFile);
 	if (headerReadBytes != 4) {
-		fprintf(stderr, "[%s:%d] Failed to read chunk description in region header. Read %d bytes at offset %d.\n",
+		/*fprintf(stderr, "[%s:%d] Failed to read chunk description in region header. Read %d bytes at offset %d.\n",
 			__FILE__, __LINE__,
 			headerReadBytes,
 			locOffset
-		);
+		);*/
 		return CHUNK_NOT_PRESENT;
 	}
 
@@ -151,6 +151,10 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 		readPayload_Int(htmpFile,&htMapLength);
 		//fprintf(stderr,"[Heightmap (%i, %i), (%i, %i)] [Debug] `htMapLength` is %i\n", rx, rz, cx, cz, htMapLength);
 		int bitCount=htMapLength/4;
+		if(bitCount==0) {
+			fprintf(stderr, "[%s:%d] Heightmap for chunk (%d, %d) in region (%d, %d) has length zero.\n", __FILE__, __LINE__, cx, cz, rx, rz);
+			return CHUNK_CORRUPTED;
+		}
 		int bitMask=(1<<bitCount)-1;
 		int htPerLong=64/bitCount;
 		for(int i=0; i<htMapLength; i++) {
@@ -401,8 +405,16 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 				// Compute the Y coordinate within the section.
 				int Y=(htMap[i]-1)%16;
 				// Determine the number of indices that can be stored in a long integer.
+				if(plttBits[sctnY]==0) {
+					fprintf(stderr, "[%s:%d] Palette for chunk (%d, %d), section %d, in region (%d, %d) has zero bits.\n", __FILE__, __LINE__, cx, cz, sctnY, rx, rz);
+					return CHUNK_CORRUPTED;
+				}
 				int indicesPerLong=64/plttBits[sctnY];
 				// Read the long integer from blockData.
+				if(indicesPerLong==0) {
+					fprintf(stderr, "[%s:%d] Too many palette bits for chunk (%d, %d), section %d, in region (%d, %d).\n", __FILE__, __LINE__, cx, cz, sctnY, rx, rz);
+					return CHUNK_CORRUPTED;
+				}
 				NBT_Long tarLong = blockData[PART_BLOCK_DATA*sctnY+((256*Y+i)/indicesPerLong)];
 				// Extract the palette index from the long integer.
 				plttInd=(tarLong>>plttBits[sctnY]*((256*Y+i)%indicesPerLong))&((1<<plttBits[sctnY])-1);
@@ -442,7 +454,15 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 							break;
 						}
 					}
+					if(plttBits[sctnY]==0) {
+						fprintf(stderr, "[%s:%d] Palette for chunk (%d, %d), section %d, in region (%d, %d) has zero bits.\n", __FILE__, __LINE__, cx, cz, sctnY, rx, rz);
+						return CHUNK_CORRUPTED;
+					}
 					int indicesPerLong=64/plttBits[sctnY];
+					if(indicesPerLong==0) {
+						fprintf(stderr, "[%s:%d] Too many palette bits for chunk (%d, %d), section %d, in region (%d, %d).\n", __FILE__, __LINE__, cx, cz, sctnY, rx, rz);
+						return CHUNK_CORRUPTED;
+					}
 					for(int Y=(sctnY==initSctn?(htMap[i]-1)%16-1:15); Y>=0; Y--) {
 						NBT_Int plttInd;
 						if(sctnHomo[sctnY])
@@ -496,6 +516,10 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 				// Compute the Y position within the section.
 				int biomeY=((htMap[i]-1)%16)/4;
 				// Determine the number of indices that can be stored in a long integer.
+				if(bioPlttBits[sctnY]==0) {
+					fprintf(stderr, "[%s:%d] Biome palette for chunk (%d, %d), section %d, in region (%d, %d) has zero bits.\n", __FILE__, __LINE__, cx, cz, sctnY, rx, rz);
+					return CHUNK_CORRUPTED;
+				}
 				int indicesPerLong=64/bioPlttBits[sctnY];
 				// Read the long integer from the biomeData.
 				NBT_Long tarLong = biomeData[PART_BIOME_DATA*sctnY+((16*biomeY+biomeInd)/indicesPerLong)];
