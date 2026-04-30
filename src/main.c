@@ -93,10 +93,11 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 	blockData = (ulong*)malloc(MAX_BLOCK_DATA);// Maximum size useable by the block palette indices
 	biomePltt = (ulong*)malloc(MAX_BIOME_PALETTE);// Maximum size useable by the biome palette
 	biomeData = (ulong*)malloc(MAX_BIOME_DATA);// Maximum size useable by the biome palette indices
-	if(blockPltt==NULL || blockData==NULL || biomePltt==NULL || biomeData==NULL) {
+	if(transfer==NULL || blockPltt==NULL || blockData==NULL || biomePltt==NULL || biomeData==NULL) {
 		printf("Failed to initialize memory.");
 		free(colors.blocks);
 		free(colors.rgb);
+		free(transfer);
 		free(blockPltt);
 		free(blockData);
 		free(biomePltt);

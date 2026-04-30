@@ -572,9 +572,6 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 	NBT_Short chunkHeightXLayer[16];
 	NBT_Short chunkHeightZ;
 
-	//printf("Rendering region at (%i, %i)\n", rx, rz);
-	//startProgBar(&prog);
-	ulong lastUnknownBiomeHash=BIOME_MINECRAFT_PLAINS;
 	void* mapInd=map;
 	for(int cz=0; cz<32; cz++) {
 		long int chunkRowInd=cz*16;
@@ -589,6 +586,7 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 					NBT_Short height = *(NBT_Short*)mapInd;
 					mapInd+=sizeof(NBT_Short);
 					ulong biomeId = *(ulong*)mapInd;
+					if(biomeId == 0) biomeId = BIOME_MINECRAFT_THE_VOID;
 					mapInd+=sizeof(ulong);
 					NBT_Short northHeight=(z>0 ? chunkHeightXLayer[x] : (cz>0 ? regionHeightXLayer[chunkColumnInd+x] : height));
 					NBT_Short westHeight=(x>0 ? chunkHeightZ : (cx>0 ? regionHeightZLayer[chunkRowInd+z] : height));
@@ -599,121 +597,12 @@ int render_region(int rx, int rz, void* map, paletteData colors, char* partialSa
 					else chunkHeightXLayer[x]=height;
 					if(x==15) regionHeightZLayer[chunkRowInd+z]=height;
 					else chunkHeightZ=height;
-					//incProgBar(&prog);
-					switch(biomeId) {
-						case BIOME_MINECRAFT_OCEAN:
-						case BIOME_MINECRAFT_DEEP_OCEAN:
-						case BIOME_MINECRAFT_FROZEN_OCEAN:
-						case BIOME_MINECRAFT_DEEP_FROZEN_OCEAN:
-						case BIOME_MINECRAFT_COLD_OCEAN:
-						case BIOME_MINECRAFT_DEEP_COLD_OCEAN:
-						case BIOME_MINECRAFT_LUKEWARM_OCEAN:
-						case BIOME_MINECRAFT_DEEP_LUKEWARM_OCEAN:
-						case BIOME_MINECRAFT_WARM_OCEAN:
-						case BIOME_MINECRAFT_RIVER:
-						case BIOME_MINECRAFT_FROZEN_RIVER:
-						case BIOME_MINECRAFT_BEACH:
-						case BIOME_MINECRAFT_STONY_SHORE:
-						case BIOME_MINECRAFT_SNOWY_BEACH:
-						case BIOME_MINECRAFT_FOREST:
-						case BIOME_MINECRAFT_FLOWER_FOREST:
-						case BIOME_MINECRAFT_BIRCH_FOREST:
-						case BIOME_MINECRAFT_OLD_GROWTH_BIRCH_FOREST:
-						case BIOME_MINECRAFT_DARK_FOREST:
-						case BIOME_MINECRAFT_PALE_GARDEN:
-						case BIOME_MINECRAFT_JUNGLE:
-						case BIOME_MINECRAFT_SPARSE_JUNGLE:
-						case BIOME_MINECRAFT_BAMBOO_JUNGLE:
-						case BIOME_MINECRAFT_TAIGA:
-						case BIOME_MINECRAFT_SNOWY_TAIGA:
-						case BIOME_MINECRAFT_OLD_GROWTH_PINE_TAIGA:
-						case BIOME_MINECRAFT_OLD_GROWTH_SPRUCE_TAIGA:
-						case BIOME_MINECRAFT_MUSHROOM_FIELDS:
-						case BIOME_MINECRAFT_SWAMP:
-						case BIOME_MINECRAFT_MANGROVE_SWAMP:
-						case BIOME_MINECRAFT_SAVANNA:
-						case BIOME_MINECRAFT_SAVANNA_PLATEAU:
-						case BIOME_MINECRAFT_WINDSWEPT_SAVANNA:
-						case BIOME_MINECRAFT_PLAINS:
-						case BIOME_MINECRAFT_SUNFLOWER_PLAINS:
-						case BIOME_MINECRAFT_DESERT:
-						case BIOME_MINECRAFT_SNOWY_PLAINS:
-						case BIOME_MINECRAFT_ICE_SPIKES:
-						case BIOME_MINECRAFT_WINDSWEPT_HILLS:
-						case BIOME_MINECRAFT_WINDSWEPT_FOREST:
-						case BIOME_MINECRAFT_WINDSWEPT_GRAVELLY_HILLS:
-						case BIOME_MINECRAFT_BADLANDS:
-						case BIOME_MINECRAFT_WOODED_BADLANDS:
-						case BIOME_MINECRAFT_ERODED_BADLANDS:
-						case BIOME_MINECRAFT_JAGGED_PEAKS:
-						case BIOME_MINECRAFT_FROZEN_PEAKS:
-						case BIOME_MINECRAFT_STONY_PEAKS:
-						case BIOME_MINECRAFT_MEADOW:
-						case BIOME_MINECRAFT_GROVE:
-						case BIOME_MINECRAFT_SNOWY_SLOPES:
-						case BIOME_MINECRAFT_CHERRY_GROVE:
-						case BIOME_MINECRAFT_DRIPSTONE_CAVES:
-						case BIOME_MINECRAFT_LUSH_CAVES:
-						case BIOME_MINECRAFT_DEEP_DARK:
-						case BIOME_MINECRAFT_NETHER_WASTES:
-						case BIOME_MINECRAFT_SOUL_SAND_VALLEY:
-						case BIOME_MINECRAFT_CRIMSON_FOREST:
-						case BIOME_MINECRAFT_WARPED_FOREST:
-						case BIOME_MINECRAFT_BASALT_DELTAS:
-						case BIOME_MINECRAFT_THE_END:
-						case BIOME_MINECRAFT_SMALL_END_ISLANDS:
-						case BIOME_MINECRAFT_END_MIDLANDS:
-						case BIOME_MINECRAFT_END_HIGHLANDS:
-						case BIOME_MINECRAFT_END_BARRENS:
-						case BIOME_MINECRAFT_THE_VOID:
-						case BIOME_AMOSPIA_THE_VOID:
-						case BIOME_AMOSPIA_WATER_WORLD:
-						case BIOME_AMOSPIA_FROZEN_WATER_CAVES:
-						case BIOME_AMOSPIA_WARM_CAVES:
-						case BIOME_AMOSPIA_BOILING_CAVES:
-						case BIOME_AMOSPIA_KELP_FOREST:
-						case BIOME_AMOSPIA_ASIATIC_FOREST:
-						case BIOME_AMOSPIA_BAMBOO_FOREST:
-						case BIOME_AMOSPIA_ROSE_FOREST:
-						case BIOME_AMOSPIA_SNOWY_MOUNTAINS:
-						case BIOME_AMOSPIA_ASIATIC_JUNGLE:
-						case BIOME_AMOSPIA_SAND_PITS:
-						case BIOME_AMOSPIA_FROZEN_TUNDRA:
-						case BIOME_AMOSPIA_FORESTED_CAVES:
-						case BIOME_AMOSPIA_ICY_CAVES:
-						case BIOME_AMOSPIA_FIERY_CAVES:
-						case BIOME_AMOSPIA_GRASSY_CAVES:
-						case BIOME_AMOSPIA_FORESTED_MOUNTAINOUS_CAVES:
-						case BIOME_AMOSPIA_ICY_MOUNTAINOUS_CAVES:
-						case BIOME_AMOSPIA_FIERY_MOUNTAINOUS_CAVES:
-						case BIOME_AMOSPIA_MOUNTAINOUS_CAVES:
-						case BIOME_AMOSPIA_DRAGON_CAVES:
-						case BIOME_AMOSPIA_EXOTIC_SWAMP:
-						case BIOME_AMOSPIA_UNDERWATER_JUNGLE:
-						case BIOME_AMOSPIA_MUSHROOM_OCEAN:
-						case BIOME_AMOSPIA_MUSHROOM:
-						case BIOME_AMOSPIA_NEGATIVE:
-						case BIOME_AMOSPIA_ROOTWAYS:
-						case BIOME_AMOSPIA_EMERALD:
-						case BIOME_AMOSPIA_EARTHEN_CAVES:
-						case BIOME_AMOSPIA_FUNGAL_FIELDS:
-						case BIOME_AMOSPIA_DARK_FUNGAL_FIELDS:
-						case BIOME_AMOSPIA_CAVERNOUS_FOREST:
-						case BIOME_AMOSPIA_BARREN_CAVERNS:
-							break;
-						default:
-							if(biomeId != lastUnknownBiomeHash) {
-								fprintf(stderr,"[Rendering r(%i, %i), c(%i, %i)] Unknown biome hash %lu at block %i, %i.\n", rx, rz, cx, cz, biomeId, x, z);
-								lastUnknownBiomeHash = biomeId;
-							}
-					}
 				}
 			}
 		}
 	}
 	free(regionHeightXLayer);
 	free(regionHeightZLayer);
-	//completeProgBar(&prog);
 
 	if(saveImage(buffer,512,512,sfp)!=0) {
 		perror("Saving failed.");

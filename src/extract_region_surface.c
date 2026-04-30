@@ -29,8 +29,12 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	unsigned char hdr[4];
 	int headerReadBytes = fread(hdr, 1, 4, regionFile);
 	if (headerReadBytes != 4) {
-		fprintf(stderr, "[%s:%d] Failed to read chunk description in region header. Read %d bytes.\n", __FILE__, __LINE__, headerReadBytes);
-		return CHUNK_CORRUPTED;
+		fprintf(stderr, "[%s:%d] Failed to read chunk description in region header. Read %d bytes at offset %d.\n",
+			__FILE__, __LINE__,
+			headerReadBytes,
+			locOffset
+		);
+		return CHUNK_NOT_PRESENT;
 	}
 
 	int offset = ((hdr[0] << 16) | (hdr[1] << 8) | hdr[2]) << 12;
@@ -44,7 +48,7 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	int chunkHeaderReadBytes = fread(chunkHdr, 1, 5, regionFile);
 	if (chunkHeaderReadBytes != 5) {
 		fprintf(stderr, "[%s:%d] Failed to read chunk header. Read %d bytes.\n", __FILE__, __LINE__, chunkHeaderReadBytes);
-		return CHUNK_CORRUPTED;
+		return CHUNK_NOT_PRESENT;
 	}
 
 	int chunkLen = (chunkHdr[0] << 24) |
@@ -528,11 +532,8 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 }
 
 int extract_region_surface(int rx, int rz, char* regionsPath, void* transfer, ulong* blockPltt, ulong* blockData, ulong* biomePltt, ulong* biomeData) {
-	//progbar prog=newProgBar(32*32,32,"Extracting Surface.",FALSE);
-
-	char curPathChar;
 	int regionPathLen=0;
-	while((curPathChar=regionsPath[regionPathLen]))
+	while(regionsPath[regionPathLen])
 		regionPathLen++;
 	int filenameLen=numPlaces(rx)+numPlaces(rz)+7;
 
@@ -545,10 +546,8 @@ int extract_region_surface(int rx, int rz, char* regionsPath, void* transfer, ul
 		return 1;
 	}
 
-	//printf("Extracting region at (%i, %i)\n", rx, rz);
-	//startProgBar(&prog);
-	for(int cz=0; cz<32; cz++) {// Changed for testing, switch from 1 to 32
-		for(int cx=0; cx<32; cx++) {// Changed for testing, switch from 1 to 32
+	for(int cz=0; cz<32; cz++) {
+		for(int cx=0; cx<32; cx++) {
 			int retVal;
 			if((retVal=extract_chunk_surface(rx,rz,cx,cz,rfp,transfer,blockPltt,blockData,biomePltt,biomeData))!=CHUNK_OK) {
 				if(retVal != CHUNK_NOT_PRESENT) {
@@ -559,10 +558,8 @@ int extract_region_surface(int rx, int rz, char* regionsPath, void* transfer, ul
 					*(uint8_t*)(transferChunk + i) = 0;
 				}
 			}
-			//incProgBar(&prog);
 		}
 	}
-	//completeProgBar(&prog);
 	fclose(rfp);
 
 	return 0;
