@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "utils.h"
 #include "progbar.h"
@@ -119,19 +120,28 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 		int negZ=FALSE;
 		int go=TRUE;
 		fseek(rfp, 0, SEEK_END);
+		int hasTerminal = TRUE;
 		struct winsize w;
 		if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
-			perror("ioctl error");
-			return 1;
+			if(errno == ENOTTY) {
+				hasTerminal = FALSE;
+			}
+			else {
+				perror("ioctl error");
+				return 1;
+			}
 		}
-		int barWidth = w.ws_col - 33;
-		if(barWidth > 175) {
-			barWidth = 175;
+		progbar prog;
+		if(hasTerminal) {
+			int barWidth = w.ws_col - 33;
+			if(barWidth > 175) {
+				barWidth = 175;
+			}
+			prog=newProgBar(ftell(rfp),barWidth,"Generating maps.",FALSE);
 		}
-		progbar prog=newProgBar(ftell(rfp),barWidth,"Generating maps.",FALSE);
 		fseek(rfp, 0, SEEK_SET);
 		printf("\n");
-		startProgBar(&prog);
+		if(hasTerminal) startProgBar(&prog);
 		while(go) {
 			coordPathChar=getc(rfp);
 			//printf("%c",coordPathChar);
@@ -139,6 +149,7 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 				case 0:
 				case EOF:
 					go=FALSE;
+					__attribute__((fallthrough));
 				case '\n':
 					if(haveZ) {
 						if(negX) {
@@ -150,11 +161,11 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 							negZ=FALSE;
 						}
 						haveZ=haveX=FALSE;
-						prog.value=ftell(rfp);
+						if(hasTerminal) prog.value=ftell(rfp);
 						
 						//printf("Processing region at (%i, %i)\n", rx, rz);
 						printf("\033[A\33[2K\033[A\33[2KProcessing region at (%i, %i)\n", rx, rz);
-						printProgBar(&prog);
+						if(hasTerminal) showProgBar(&prog);
 						region r = newRegion(rx, rz, argv[1], transfer, blockPltt, blockData, biomePltt, biomeData, colors, argv[3]);
 						processRegion(r);
 						rx=rz=0;
@@ -286,7 +297,7 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 			}
 		}
 		
-		completeProgBar(&prog);
+		if(hasTerminal) completeProgBar(&prog);
 	}
 	else {
 		for(int i=4; i<argc; i+=2) { // 4 is the first index that holds a region coordinate and they are found in pairs

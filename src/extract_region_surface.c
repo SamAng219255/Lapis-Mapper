@@ -55,10 +55,11 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	FILE *tfp;
 	tfp=tmpfile();
 	fseek(cfp,0,SEEK_SET);
-	if(inf(cfp,tfp)!=Z_OK) {
+	int inf_ret;
+	if((inf_ret=inf(cfp,tfp))!=Z_OK) {
 		fclose(tfp);
 		fclose(cfp);
-		perror("Chunk failed to inflate.\n");
+		fprintf(stderr, "Chunk failed to inflate: %d\n", inf_ret);
 		return CHUNK_CORRUPTED;
 	}
 	fclose(cfp);

@@ -2,7 +2,7 @@
 
 static char* barElements[]={" ","▏","▎","▍","▌","▋","▊","▉","█"};
 
-void printProgBar(progbar* bar) {
+static void printProgBar(progbar* bar) {
 	size_t percent=(100*bar->value)/bar->max;
 	printf("%s | %3zu%% | ", bar->title, percent);
 	size_t lenVal=bar->length*bar->value;
@@ -54,7 +54,7 @@ void completeProgBar(progbar* bar) {
 		printf(" | Done\n");
 }
 
-void printOverProgbar(progbar* bar, FILE* stream, char* str) {
-	fprintf(stream,"\033[A\33[2K%s\n",str);
+void printOverProgbar(progbar* bar, char* str) {
+	printf("\033[A\33[2K%s\n",str);
 	printProgBar(bar);
 }
