@@ -24,37 +24,51 @@ static int extract_chunk_surface(int rx, int rz, int cx, int cz, FILE* regionFil
 	int error_code;
 
 	//Fetch location of chunk data. Saved in offset.
-	int locOffset=4*(cx+cz*32);
+	int locOffset=(cx+cz*32)<<2;
 	fseek(regionFile,locOffset,SEEK_SET);
-	int offset=0;
-	for(int i=0; i<3; i++) {
-		offset*=256;
-		offset+=(int)getc(regionFile);
-	}
-	offset<<=12;
-	if(getc(regionFile)==0)
+	unsigned char hdr[4];
+	if (fread(hdr, 1, 4, regionFile) != 4)
+		return CHUNK_CORRUPTED;
+
+	int offset = ((hdr[0] << 16) | (hdr[1] << 8) | hdr[2]) << 12;
+	if (hdr[3] == 0)
 		return CHUNK_NOT_PRESENT;
 
 	//Write compressed chunk data into cfp.
-	FILE *cfp;
-	cfp=tmpfile();
 	fseek(regionFile,offset,SEEK_SET);
-	int chunkLen=0;
-	for(int i=0; i<4; i++) {
-		chunkLen*=256;
-		chunkLen+=(int)getc(regionFile);
+
+	unsigned char chunkHdr[5];
+	if (fread(chunkHdr, 1, 5, regionFile) != 5)
+		return CHUNK_CORRUPTED;
+
+	int chunkLen = (chunkHdr[0] << 24) |
+	               (chunkHdr[1] << 16) |
+	               (chunkHdr[2] << 8)  |
+	                chunkHdr[3];
+
+	int compMeth=chunkHdr[4];
+	if(compMeth != 2) {
+		fprintf(stderr, "Incorrect compression method: %d\n", compMeth);
+		return CHUNK_CORRUPTED;
 	}
-	//int compMeth=(int)getc(regionFile);
-	fseek(regionFile,1,SEEK_CUR);
 	chunkLen--;
-	for(int i=0; i<chunkLen; i++) {
-		putc(getc(regionFile),cfp);
+
+	FILE *cfp = tmpfile();
+	if (!cfp) return CHUNK_CORRUPTED;
+	char buffer[8192];
+	while (chunkLen > 0) {
+		int n = chunkLen > (int)sizeof(buffer) ? (int)sizeof(buffer) : chunkLen;
+		if ((int)fread(buffer, 1, n, regionFile) != n) {
+			fclose(cfp);
+			return CHUNK_CORRUPTED;
+		}
+		fwrite(buffer, 1, n, cfp);
+		chunkLen -= n;
 	}
+	rewind(cfp);
 
 	//Decompress chunk data and save binary to tfp.
-	FILE *tfp;
-	tfp=tmpfile();
-	fseek(cfp,0,SEEK_SET);
+	FILE *tfp=tmpfile();
 	int inf_ret;
 	if((inf_ret=inf(cfp,tfp))!=Z_OK) {
 		fclose(tfp);
