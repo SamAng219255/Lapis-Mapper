@@ -313,6 +313,7 @@ int main(int argc, char* argv[]) {//Test Line: ./mcp 'region' 'block_colors' 'im
 
 	free(colors.blocks);
 	free(colors.rgb);
+	free(transfer);
 	free(blockPltt);
 	free(blockData);
 	free(biomePltt);

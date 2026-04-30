@@ -114,7 +114,6 @@ int readPayload_Double(FILE* fp, NBT_Double* tar) {
 int readPayload_Byte_Array(FILE* fp, NBT_Byte_Array* tar) {
 	if(readPayload_Int(fp,&tar->length) != NBT_OK)
 		return NBT_ERR_FAILED_ALLOCATION;
-	free(tar->array);
 	size_t bytes=tar->length*payloadElementSizes[TAG_Byte_Array];
 	tar->array=malloc(bytes);
 	if(tar->array==NULL)
@@ -125,7 +124,6 @@ int readPayload_Byte_Array(FILE* fp, NBT_Byte_Array* tar) {
 int readPayload_String(FILE* fp, NBT_String* tar) {
 	if(readPayload_Short(fp,&tar->length) != NBT_OK)
 		return NBT_ERR_FAILED_ALLOCATION;
-	free(tar->string);
 	size_t bytes=tar->length*payloadElementSizes[TAG_String];
 	tar->string=malloc(bytes);
 	if(tar->string==NULL)
@@ -136,7 +134,6 @@ int readPayload_String(FILE* fp, NBT_String* tar) {
 int readPayload_Int_Array(FILE* fp, NBT_Int_Array* tar) {
 	if(readPayload_Int(fp,&tar->length) != NBT_OK)
 		return NBT_ERR_FAILED_ALLOCATION;
-	free(tar->array);
 	size_t bytes=tar->length*payloadElementSizes[TAG_Int_Array];
 	tar->array=malloc(bytes);
 	if(tar->array==NULL)
@@ -147,7 +144,6 @@ int readPayload_Int_Array(FILE* fp, NBT_Int_Array* tar) {
 int readPayload_Long_Array(FILE* fp, NBT_Long_Array* tar) {
 	if(readPayload_Int(fp,&tar->length) != NBT_OK)
 		return NBT_ERR_FAILED_ALLOCATION;
-	free(tar->array);
 	size_t bytes=tar->length*payloadElementSizes[TAG_Long_Array];
 	tar->array=malloc(bytes);
 	if(tar->array==NULL)
